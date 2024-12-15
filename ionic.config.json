@@ -1,0 +1,7 @@
+{
+  "name": "papima",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
