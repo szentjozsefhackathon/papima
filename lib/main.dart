@@ -192,7 +192,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                           currentPriest['img'],
                           width: 300,
                           height: 300,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.scaleDown,
                         ),
                         SizedBox(height: 16),
                         InkWell(
