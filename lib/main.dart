@@ -188,13 +188,18 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (currentPriest != null) ...[
-                        Image.network(
-                          currentPriest['img'],
-                          width: 300,
-                          height: 300,
-                          fit: BoxFit.scaleDown,
-                        ),
-                        SizedBox(height: 16),
+                        if (currentPriest['img'] != null) ...[
+                          Image.network(
+                            currentPriest['img'],
+                            width: 300,
+                            height: 300,
+                            fit: BoxFit.scaleDown,
+                          ),
+                          SizedBox(height: 16),
+                        ]
+                        else ...[
+                          SizedBox(height: 316)
+                        ],
                         InkWell(
                           onTap: () => _launchUrl(currentPriest['src']),
                           child: Text(
