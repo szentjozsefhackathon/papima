@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 void main() {
   runApp(PapImaApp());
 }
@@ -45,6 +46,13 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
   }
 
   Future<void> _initDatabase() async {
+    if (kIsWeb) {
+      final path = 'PapIma.db';
+      db = await databaseFactoryFfiWeb.openDatabase(path);
+        await db.execute('CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
+        await db.execute('CREATE TABLE IF NOT EXISTSsettings (key TEXT PRIMARY KEY, value TEXT)');
+      return;
+    }
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'papima.db');
 
@@ -53,9 +61,9 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-            'CREATE TABLE priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
+            'CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
         return db.execute(
-            'CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT)');
+            'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
       },
     );
   }
