@@ -39,7 +39,8 @@ dependencies:
   shared_preferences: ^2.3.3
   url_launcher: ^6.3.1
   sqflite_common_ffi_web:
-  flutter_launcher_icons: 
+  flutter_launcher_icons:
+  web:
 dev_dependencies:
   flutter_test:
     sdk: flutter
