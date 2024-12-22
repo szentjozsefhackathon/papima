@@ -50,7 +50,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       final path = 'PapIma.db';
       db = await databaseFactoryFfiWeb.openDatabase(path);
         await db.execute('CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
-        await db.execute('CREATE TABLE IF NOT EXISTSsettings (key TEXT PRIMARY KEY, value TEXT)');
+        await db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
       return;
     }
     final dbPath = await getDatabasesPath();
