@@ -41,6 +41,7 @@ dependencies:
   sqflite_common_ffi_web:
   flutter_launcher_icons:
   web:
+  path: ^1.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

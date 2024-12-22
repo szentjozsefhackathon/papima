@@ -6,8 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
-import 'dart:ui_web' as ui_web;
-import 'package:web/web.dart' as web;
+//import 'package:web/web.dart' as web;
+//import 'dart:ui_web' as ui_web;
+
 void main() {
   runApp(PapImaApp());
 }
@@ -29,7 +30,7 @@ class DynamicHtmlImage extends StatefulWidget {
 }
 
 class _DynamicHtmlImageState extends State<DynamicHtmlImage> {
-  late web.HTMLImageElement _imageElement; // HTML ImageElement a kép megjelenítéséhez
+  //late web.HTMLImageElement _imageElement; // HTML ImageElement a kép megjelenítéséhez
   late String _viewType; // Egyedi nézettípus az azonosításhoz
 
   @override
@@ -40,18 +41,18 @@ class _DynamicHtmlImageState extends State<DynamicHtmlImage> {
     // Regisztráljuk a platformnézet gyárat
     if (kIsWeb) {
       // ignore: undefined_prefixed_name
-      ui_web.platformViewRegistry.registerViewFactory(
+      /*ui_web.platformViewRegistry.registerViewFactory(
         _viewType,
         (int viewId) => _imageElement, // A HTML elem visszaadása
-      );
+      );*/
     }
 
     // HTML ImageElement inicializálása
-    _imageElement = web.HTMLImageElement()
+   /* _imageElement = web.HTMLImageElement()
       ..src = widget.src // Beállítjuk a képforrást
       ..style.objectFit = 'scale-down'
       ..style.maxWidth = '${widget.maxWidth}px' // Maximális szélesség stílus
-      ..style.maxHeight = '${widget.maxHeight}px'; // Maximális magasság stílus
+      ..style.maxHeight = '${widget.maxHeight}px'; // Maximális magasság stílus */
   }
 
   @override
@@ -63,9 +64,9 @@ class _DynamicHtmlImageState extends State<DynamicHtmlImage> {
         widget.maxWidth != oldWidget.maxWidth ||
         widget.maxHeight != oldWidget.maxHeight) {
       setState(() {
-        _imageElement.src = widget.src; // Új képforrás beállítása
+       /* _imageElement.src = widget.src; // Új képforrás beállítása
         _imageElement.style.maxWidth = '${widget.maxWidth}px'; // Új max szélesség
-        _imageElement.style.maxHeight = '${widget.maxHeight}px'; // Új max magasság
+        _imageElement.style.maxHeight = '${widget.maxHeight}px'; // Új max magasság */
       });
     }
   }
