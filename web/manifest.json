@@ -1,11 +1,11 @@
 {
-    "name": "papima_flutter",
-    "short_name": "papima_flutter",
+    "name": "PapIma",
+    "short_name": "PapIma",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#hexcode",
     "theme_color": "#hexcode",
-    "description": "A new Flutter project.",
+    "description": "Ima papjainkért",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
