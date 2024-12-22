@@ -32,7 +32,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
   List<Map<String, dynamic>> priests = [];
   int currentIndex = 0;
   String sourceUrl =
-      'https://szentjozsefhackathon.github.io/sematizmus/data.json';
+      'https://szentjozsefhackathon.github.io/sematizmus/papima.json';
   late Database db;
   bool showAdvanced = false;
 
