@@ -36601,7 +36601,7 @@ p.r=o
 s=4
 return A.H(o.Q2("CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)"),$async$nY)
 case 4:s=5
-return A.H(p.r.Q2("CREATE TABLE IF NOT EXISTSsettings (key TEXT PRIMARY KEY, value TEXT)"),$async$nY)
+return A.H(p.r.Q2("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)"),$async$nY)
 case 5:s=1
 break
 case 1:return A.D(q,r)}})
