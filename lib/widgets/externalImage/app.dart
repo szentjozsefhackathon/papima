@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 
 class DynamicImage extends StatefulWidget {
   final String src; // Képforrás
