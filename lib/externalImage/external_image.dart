@@ -1,0 +1,1 @@
+export 'app.dart' if (dart.library.html) 'web.dart';
