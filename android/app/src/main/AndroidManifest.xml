@@ -3,7 +3,10 @@
     <application
         android:label="PapIma"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -41,6 +44,10 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
         </intent>
     </queries>
 </manifest>

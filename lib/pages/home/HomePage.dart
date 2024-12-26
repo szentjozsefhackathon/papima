@@ -123,6 +123,9 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
 
   void _nextPriest() {
     setState(() {
+      if (currentIndex == priests.length - 1) {
+        _updatePriestList();
+      }
       currentIndex = (currentIndex + 1) % priests.length;
       _saveSetting("index", currentIndex.toString());
     });

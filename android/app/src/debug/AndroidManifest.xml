@@ -4,4 +4,15 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <application>
+    <meta-data
+    android:name="io.flutter.embedding.android.EnableImpeller"
+    android:value="false" />
+    </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
 </manifest>
