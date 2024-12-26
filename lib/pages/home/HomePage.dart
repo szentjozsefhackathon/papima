@@ -1,3 +1,4 @@
+import 'package:PapIma/database/DatabaseHelper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
@@ -8,6 +9,7 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import '../../widgets/externalImage/external_image.dart';
 import '../info/InfoPage.dart';
 import '../../common/launch_url.dart';
+import '../settings/SettingsPage.dart';
 
 class PapImaHomePage extends StatefulWidget {
   @override
@@ -25,34 +27,13 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
   @override
   void initState() {
     super.initState();
-    _initDatabase().then((_) {
-      _loadPriestsFromDatabase();
-      _loadIndexFromDatabase();
+    DatabaseHelper().database.then((database) {
+        db = database;
+        _loadPriestsFromDatabase();
+        _loadIndexFromDatabase();
     });
   }
 
-  Future<void> _initDatabase() async {
-    if (kIsWeb) {
-      final path = 'PapIma.db';
-      db = await databaseFactoryFfiWeb.openDatabase(path);
-        await db.execute('CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
-        await db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
-      return;
-    }
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'papima.db');
-
-    db = await openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) {
-        db.execute(
-            'CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
-        return db.execute(
-            'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
-      },
-    );
-  }
 
   Future<void> _loadPriestsFromDatabase() async {
     final result = await db.query('priests');
@@ -89,12 +70,6 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     }
   }
 
-  Future<void> _saveSetting(String key, String value) async {
-    await db.execute(
-        'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?);',
-        [key, value]);
-  }
-
   Future<void> _updatePriestList() async {
     try {
       final response = await http.get(Uri.parse(sourceUrl));
@@ -127,7 +102,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
         _updatePriestList();
       }
       currentIndex = (currentIndex + 1) % priests.length;
-      _saveSetting("index", currentIndex.toString());
+      DatabaseHelper().saveSetting("index", currentIndex.toString());
     });
   }
 
@@ -143,7 +118,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       setState(() {
         currentIndex = index-1;
       });
-      _saveSetting("index", currentIndex.toString());
+      DatabaseHelper().saveSetting("index", currentIndex.toString());
     }
   }
 
@@ -175,6 +150,15 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                 );
               },
             ),
+            IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
           ],
         ),
         body: SingleChildScrollView(
