@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -24,11 +26,26 @@ class _DynamicImageState extends State<DynamicImage> {
   void initState() {
     super.initState();
 
+    updateImage();
 
-    _imageElement = Image.network(widget.src,
-      width: widget.maxWidth,
-      height: widget.maxHeight,
-      fit: BoxFit.scaleDown);
+  }
+
+  void updateImage() {
+    if (widget.src.contains("base64")) {
+      // Ha a képforrás base64 kódolt
+      _imageElement = Image.memory(
+        base64Decode(widget.src.split(',').last.trim()),
+        width: widget.maxWidth,
+        height: widget.maxHeight,
+        fit: BoxFit.scaleDown,
+      );
+    } else {
+      // Ha a képforrás URL
+      _imageElement = Image.network(widget.src,
+        width: widget.maxWidth,
+        height: widget.maxHeight,
+        fit: BoxFit.scaleDown);
+    }
   }
 
   @override
@@ -40,10 +57,7 @@ class _DynamicImageState extends State<DynamicImage> {
         widget.maxWidth != oldWidget.maxWidth ||
         widget.maxHeight != oldWidget.maxHeight) {
       setState(() {
-        _imageElement = Image.network(widget.src,
-          width: widget.maxWidth,
-          height: widget.maxHeight,
-          fit: BoxFit.scaleDown);
+        updateImage();
       });
     }
   }
