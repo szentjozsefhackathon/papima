@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../models/BackButtonProvider.dart';
+import '../../models/SystemBarProvider.dart';
 import '../../widgets/externalImage/external_image.dart';
 import '../info/InfoPage.dart';
 import '../../common/launch_url.dart';
@@ -100,6 +101,9 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
   }
 
   void _increaseDailyCounter({int amount = 1}) {
+    if (dailyCounter + amount < 0) {
+      amount = dailyCounter;
+    }
     final now = DateTime.now();
     final date = '${now.year}-${now.month}-${now.day}';
     db.rawInsert(
@@ -160,6 +164,12 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     final currentPriest = priests.isNotEmpty ? priests[currentIndex] : null;
     final backButtonProvider = Provider.of<BackButtonProvider>(context);
     final dailyGoalProvider = Provider.of<DailyGoalProvider>(context);
+    final systemBarProvider = Provider.of<SystemBarProvider>(context);
+
+    SystemChrome.setEnabledSystemUIMode(
+        systemBarProvider.fullScreen
+            ? SystemUiMode.immersive
+            : SystemUiMode.edgeToEdge);
     return Scaffold(
         appBar: AppBar(
           title: GestureDetector(

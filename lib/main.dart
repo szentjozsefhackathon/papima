@@ -24,9 +24,7 @@ class PapImaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final systemBarProvider = Provider.of<SystemBarProvider>(context);
 
-    SystemChrome.setEnabledSystemUIMode(systemBarProvider.fullScreen ? SystemUiMode.immersive : SystemUiMode.edgeToEdge);
     return MaterialApp(
       title: 'PapIma',
       theme: ThemeData.light(),
