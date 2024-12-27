@@ -1,11 +1,12 @@
 import 'package:PapIma/database/DatabaseHelper.dart';
-import 'package:flutter/foundation.dart';
+import 'package:PapIma/models/DailyGoalProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import '../../models/BackButtonProvider.dart';
 import '../../widgets/externalImage/external_image.dart';
 import '../info/InfoPage.dart';
 import '../../common/launch_url.dart';
@@ -19,6 +20,7 @@ class PapImaHomePage extends StatefulWidget {
 class _PapImaHomePageState extends State<PapImaHomePage> {
   List<Map<String, dynamic>> priests = [];
   int currentIndex = 0;
+  int dailyCounter = 0;
   String sourceUrl =
       'https://szentjozsefhackathon.github.io/sematizmus/papima.json';
   late Database db;
@@ -31,6 +33,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
         db = database;
         _loadPriestsFromDatabase();
         _loadIndexFromDatabase();
+        _getDailyCounter().then((value) => setState(() => dailyCounter=value));
     });
   }
 
@@ -96,6 +99,21 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     }
   }
 
+  void _increaseDailyCounter({int amount = 1}) {
+    final now = DateTime.now();
+    final date = '${now.year}-${now.month}-${now.day}';
+    db.rawInsert(
+        'INSERT OR REPLACE INTO days (date, count) VALUES (?, COALESCE((SELECT count FROM days WHERE date = ?), 0) + ?)',
+        [date, date, amount]);
+    dailyCounter+=amount;
+  }
+
+  Future<int> _getDailyCounter() async {
+    final now = DateTime.now();
+    final date = '${now.year}-${now.month}-${now.day}';
+    final res = await db.query('days', where: 'date = ?', whereArgs: [date]);
+    return res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
+  }
   void _nextPriest() {
     setState(() {
       if (currentIndex == priests.length - 1) {
@@ -103,6 +121,15 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       }
       currentIndex = (currentIndex + 1) % priests.length;
       DatabaseHelper().saveSetting("index", currentIndex.toString());
+      _increaseDailyCounter();
+    });
+  }
+
+  void _previousPriest() {
+    setState(() {
+      currentIndex = (currentIndex - 1) % priests.length;
+      DatabaseHelper().saveSetting("index", currentIndex.toString());
+      _increaseDailyCounter(amount: -1);
     });
   }
 
@@ -131,7 +158,8 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
   @override
   Widget build(BuildContext context) {
     final currentPriest = priests.isNotEmpty ? priests[currentIndex] : null;
-
+    final backButtonProvider = Provider.of<BackButtonProvider>(context);
+    final dailyGoalProvider = Provider.of<DailyGoalProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: GestureDetector(
@@ -164,22 +192,21 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
         body: SingleChildScrollView(
           child: Center(
             child: priests.isEmpty
-                ? CircularProgressIndicator()
+                ? Column(children: [
+                  SizedBox(height: 316),
+                  CircularProgressIndicator()
+                ])
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (currentPriest != null) ...[
-                        if (currentPriest['img'] != null) ...[
-                          DynamicImage(
-                            src: currentPriest['img'],
-                            maxWidth: 300,
-                            maxHeight: 300,
-                          ),
-                          SizedBox(height: 16),
-                        ]
-                        else ...[
-                          SizedBox(height: 316)
-                        ],
+                        DynamicImage(
+                          src: currentPriest['img'] ?? "https://szentjozsefhackathon.github.io/sematizmus/ftPlaceholder.png",
+                          maxWidth: 300,
+                          maxHeight: 300,
+                        ),
+                        SizedBox(height: 16),
+
                         InkWell(
                           onTap: () => launch_url(currentPriest['src']),
                           child: Text(
@@ -202,6 +229,17 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                       Text(
                         '${currentIndex + 1}/${priests.length}',
                       ),
+                      SizedBox(height: 16),
+                      if (dailyGoalProvider.enabled)
+                        Text(
+                          'Napi cél: ${dailyCounter}/${dailyGoalProvider.dailyGoal}',
+                        ),
+                      SizedBox(height: 16),
+                      if (backButtonProvider.backButton)
+                        ElevatedButton(
+                          onPressed: _previousPriest,
+                          child: Text('Előző')
+                        ),
                       if (showAdvanced)
                         Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -213,13 +251,18 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                                   labelText: 'Aktuális index',
                                 ),
                                 onSubmitted: _updateIndex,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                               ),
                               SizedBox(height: 16),
-                              TextField(
+                              TextFormField(
                                 decoration: InputDecoration(
                                   labelText: 'Forrás URL',
                                 ),
-                                onSubmitted: _updateSource,
+                                onChanged: _updateSource,
+                                initialValue: sourceUrl,
                               ),
                               SizedBox(height: 16),
                               ElevatedButton(

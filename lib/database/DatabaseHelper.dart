@@ -20,37 +20,23 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    /*
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'app_database.db');
-
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-    );*/
-
+    late Database _db;
     if (kIsWeb) {
       final path = 'PapIma.db';
-      Database db = await databaseFactoryFfiWeb.openDatabase(path);
-        await db.execute('CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
-        await db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
-      return db;
-
+      _db = await databaseFactoryFfiWeb.openDatabase(path);
     }
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'papima.db');
+    else {
+      final dbPath = await getDatabasesPath();
+      final path = join(dbPath, 'papima.db');
+      _db = await openDatabase(
+        path,
+        version: 1
+      );
+    }
+    await _db.execute('CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
+    await _db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
+    await _db.execute('CREATE TABLE IF NOT EXISTS days (date TEXT PRIMARY KEY, count INTEGER)');
 
-    Database _db = await openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) {
-        db.execute(
-            'CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
-        return db.execute(
-            'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
-      },
-    );
     return _db;
   }
   Future<void> saveSetting(String key, String value) async {
