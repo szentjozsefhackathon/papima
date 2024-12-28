@@ -36,6 +36,7 @@ class DatabaseHelper {
     await _db.execute('CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
     await _db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
     await _db.execute('CREATE TABLE IF NOT EXISTS days (date TEXT PRIMARY KEY, count INTEGER)');
+    await _db.execute('CREATE TABLE IF NOT EXISTS dailyStreak (date TEXT PRIMARY KEY, count INTEGER)');
 
     return _db;
   }

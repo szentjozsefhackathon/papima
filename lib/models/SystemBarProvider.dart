@@ -9,7 +9,6 @@ class SystemBarProvider extends ChangeNotifier {
     DatabaseHelper().database.then((db) async {
       final result = await db.query('settings', where: 'key = ?', whereArgs: ['fullScreen']);
       if (result.isNotEmpty) _fullScreen = result.first['value'] == '1';
-      print('fullScreen: $_fullScreen');
       SystemChrome.setEnabledSystemUIMode(_fullScreen ? SystemUiMode.immersive : SystemUiMode.edgeToEdge);
 
       notifyListeners();

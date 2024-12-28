@@ -1,5 +1,6 @@
 import 'package:PapIma/database/DatabaseHelper.dart';
 import 'package:PapIma/models/DailyGoalProvider.dart';
+import 'package:PapIma/pages/home/DailyStreakDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
   List<Map<String, dynamic>> priests = [];
   int currentIndex = 0;
   int dailyCounter = 0;
+  int dailyStreak = 0;
   String sourceUrl =
       'https://szentjozsefhackathon.github.io/sematizmus/papima.json';
   late Database db;
@@ -35,6 +37,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       _loadPriestsFromDatabase();
       _loadIndexFromDatabase();
       _getDailyCounter().then((value) => setState(() => dailyCounter = value));
+      _getDailyStreak().then((value) => setState(() => dailyStreak = value));
     });
   }
 
@@ -118,6 +121,34 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     return res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
   }
 
+  Future<int> _getDailyStreak() async {
+    final now = DateTime.now();
+    final date = '${now.year}-${now.month}-${now.day}';
+    final res =
+        await db.query('dailyStreak', where: 'date = ?', whereArgs: [date]);
+    return res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
+  }
+
+  Future<void> _updateDailyStreak() async {
+    int ds = await _getDailyStreak();
+    setState(() {
+      dailyStreak = ds;
+    });
+    if (dailyStreak != 0) {
+      return;
+    }
+    final yesterday = DateTime.now().add(Duration(days: -1));
+    final date = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
+    final res =
+        await db.query('dailyStreak', where: 'date = ?', whereArgs: [date]);
+    final count = res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
+    await db.rawInsert(
+        'INSERT INTO dailyStreak (date, count) VALUES (?, ?)', [date, count+1]);
+    setState(() {
+      dailyStreak = count+1;
+    });
+  }
+
   void _nextPriest() {
     setState(() {
       if (currentIndex == priests.length - 1) {
@@ -126,6 +157,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       currentIndex = (currentIndex + 1) % priests.length;
       DatabaseHelper().saveSetting("index", currentIndex.toString());
       _increaseDailyCounter();
+      _updateDailyStreak();
     });
   }
 
@@ -176,6 +208,14 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
             child: Text('PapIma'),
           ),
           actions: [
+            ElevatedButton.icon(
+                label: Text(dailyStreak > 0 ? dailyStreak.toString() : ''),
+                icon: Icon(Icons.local_fire_department),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) => DailyStreakDialog());
+                }),
             IconButton(
               icon: Icon(Icons.info_outline),
               onPressed: () {
@@ -227,7 +267,9 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                           ),
                         ),
                         SizedBox(height: 8),
-                        Text(currentPriest['diocese'].toString().replaceAll("Rendtarománya", "Rendtartománya")),
+                        Text(currentPriest['diocese']
+                            .toString()
+                            .replaceAll("Rendtarománya", "Rendtartománya")),
                       ],
                       SizedBox(height: 16),
                       ElevatedButton(

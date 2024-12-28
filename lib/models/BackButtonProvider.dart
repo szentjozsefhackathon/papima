@@ -8,7 +8,7 @@ class BackButtonProvider extends ChangeNotifier {
   BackButtonProvider() {
     DatabaseHelper().database.then((db) async {
       final result = await db.query('settings', where: 'key = ?', whereArgs: ['backButton']);
-      _backButton = result.first['value'] == '1';
+      _backButton = result.isNotEmpty ? result.first['value'] == '1' : false;
       SystemChrome.setEnabledSystemUIMode(_backButton ? SystemUiMode.immersive : SystemUiMode.edgeToEdge);
 
       notifyListeners();

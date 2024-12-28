@@ -8,7 +8,7 @@ class ThemeProvider extends ChangeNotifier {
   ThemeProvider() {
     DatabaseHelper().database.then((db) async {
       final result = await db.query('settings', where: 'key = ?', whereArgs: ['theme']);
-      switch (result.first['value']) {
+      switch (result.isNotEmpty ? result.first['value'] : 'system') {
         case 'light':
           _themeMode = ThemeMode.light;
           break;
