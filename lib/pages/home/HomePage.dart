@@ -31,13 +31,12 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
   void initState() {
     super.initState();
     DatabaseHelper().database.then((database) {
-        db = database;
-        _loadPriestsFromDatabase();
-        _loadIndexFromDatabase();
-        _getDailyCounter().then((value) => setState(() => dailyCounter=value));
+      db = database;
+      _loadPriestsFromDatabase();
+      _loadIndexFromDatabase();
+      _getDailyCounter().then((value) => setState(() => dailyCounter = value));
     });
   }
-
 
   Future<void> _loadPriestsFromDatabase() async {
     final result = await db.query('priests');
@@ -109,7 +108,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     db.rawInsert(
         'INSERT OR REPLACE INTO days (date, count) VALUES (?, COALESCE((SELECT count FROM days WHERE date = ?), 0) + ?)',
         [date, date, amount]);
-    dailyCounter+=amount;
+    dailyCounter += amount;
   }
 
   Future<int> _getDailyCounter() async {
@@ -118,6 +117,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     final res = await db.query('days', where: 'date = ?', whereArgs: [date]);
     return res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
   }
+
   void _nextPriest() {
     setState(() {
       if (currentIndex == priests.length - 1) {
@@ -147,7 +147,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     final index = int.tryParse(value);
     if (index != null && index >= 0 && index < priests.length) {
       setState(() {
-        currentIndex = index-1;
+        currentIndex = index - 1;
       });
       DatabaseHelper().saveSetting("index", currentIndex.toString());
     }
@@ -166,10 +166,9 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     final dailyGoalProvider = Provider.of<DailyGoalProvider>(context);
     final systemBarProvider = Provider.of<SystemBarProvider>(context);
 
-    SystemChrome.setEnabledSystemUIMode(
-        systemBarProvider.fullScreen
-            ? SystemUiMode.immersive
-            : SystemUiMode.edgeToEdge);
+    SystemChrome.setEnabledSystemUIMode(systemBarProvider.fullScreen
+        ? SystemUiMode.immersive
+        : SystemUiMode.edgeToEdge);
     return Scaffold(
         appBar: AppBar(
           title: GestureDetector(
@@ -189,34 +188,34 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
               },
             ),
             IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
-            },
-          ),
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
+            ),
           ],
         ),
         body: SingleChildScrollView(
           child: Center(
             child: priests.isEmpty
                 ? Column(children: [
-                  SizedBox(height: 316),
-                  CircularProgressIndicator()
-                ])
+                    SizedBox(height: 316),
+                    CircularProgressIndicator()
+                  ])
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (currentPriest != null) ...[
                         DynamicImage(
-                          src: currentPriest['img'] ?? "https://szentjozsefhackathon.github.io/sematizmus/ftPlaceholder.png",
+                          src: currentPriest['img'] ??
+                              "https://szentjozsefhackathon.github.io/sematizmus/ftPlaceholder.png",
                           maxWidth: 300,
                           maxHeight: 300,
                         ),
                         SizedBox(height: 16),
-
                         InkWell(
                           onTap: () => launch_url(currentPriest['src']),
                           child: Text(
@@ -228,7 +227,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                           ),
                         ),
                         SizedBox(height: 8),
-                        Text(currentPriest['diocese']),
+                        Text(currentPriest['diocese'].toString().replaceAll("Rendtarománya", "Rendtartománya")),
                       ],
                       SizedBox(height: 16),
                       ElevatedButton(
@@ -247,9 +246,7 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                       SizedBox(height: 16),
                       if (backButtonProvider.backButton)
                         ElevatedButton(
-                          onPressed: _previousPriest,
-                          child: Text('Előző')
-                        ),
+                            onPressed: _previousPriest, child: Text('Előző')),
                       if (showAdvanced)
                         Padding(
                           padding: const EdgeInsets.all(16.0),
