@@ -138,9 +138,11 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       return;
     }
     final yesterday = DateTime.now().add(Duration(days: -1));
-    final date = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
+    final yesterdayDate = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
+    final today = DateTime.now();
+    final date = '${today.year}-${today.month}-${today.day}';
     final res =
-        await db.query('dailyStreak', where: 'date = ?', whereArgs: [date]);
+        await db.query('dailyStreak', where: 'date = ?', whereArgs: [yesterdayDate]);
     final count = res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
     await db.rawInsert(
         'INSERT INTO dailyStreak (date, count) VALUES (?, ?)', [date, count+1]);
