@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -51,13 +52,15 @@ class SettingsPage extends StatelessWidget {
                     themeProvider.setThemeMode(value!);
                   },
                 ),
-                Text('Teljes képernyő'),
-                Switch(
-                  value: systemBarProvider.fullScreen,
-                  onChanged: (bool value) {
-                    systemBarProvider.setFullScreen(value);
-                  },
-                ),
+                if (!kIsWeb) ...[
+                  Text('Teljes képernyő'),
+                  Switch(
+                    value: systemBarProvider.fullScreen,
+                    onChanged: (bool value) {
+                      systemBarProvider.setFullScreen(value);
+                    },
+                  )
+                ],
                 Text('Vissza gomb'),
                 Switch(
                   value: backButtonProvider.backButton,

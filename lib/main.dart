@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'models/BackButtonProvider.dart';
 import 'models/DailyGoalProvider.dart';
 import 'models/SystemBarProvider.dart';
 import 'models/ThemeProvider.dart';
-import 'pages/home/HomePage.dart';
+import 'pages/separatelyPrayer/SeparatelyPrayer.dart';
 
 void main() {
     runApp(
@@ -30,7 +29,7 @@ class PapImaApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: themeProvider.themeMode,
-      home: PapImaHomePage(),
+      home: SeparatelyPrayer(),
     );
   }
 }

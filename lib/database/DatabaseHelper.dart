@@ -24,25 +24,36 @@ class DatabaseHelper {
     if (kIsWeb) {
       final path = 'PapIma.db';
       _db = await databaseFactoryFfiWeb.openDatabase(path);
-    }
-    else {
+    } else {
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, 'papima.db');
-      _db = await openDatabase(
-        path,
-        version: 1
-      );
+      _db = await openDatabase(path, version: 1);
     }
-    await _db.execute('CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
-    await _db.execute('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
-    await _db.execute('CREATE TABLE IF NOT EXISTS days (date TEXT PRIMARY KEY, count INTEGER)');
-    await _db.execute('CREATE TABLE IF NOT EXISTS dailyStreak (date TEXT PRIMARY KEY, count INTEGER)');
+    await _db.execute(
+        'CREATE TABLE IF NOT EXISTS priests (id INTEGER PRIMARY KEY, name TEXT, img TEXT, src TEXT, diocese TEXT)');
+    await _db.execute(
+        'CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
+    await _db.execute(
+        'CREATE TABLE IF NOT EXISTS days (date TEXT PRIMARY KEY, count INTEGER)');
+    await _db.execute(
+        'CREATE TABLE IF NOT EXISTS dailyStreak (date TEXT PRIMARY KEY, count INTEGER)');
 
     return _db;
   }
+
   Future<void> saveSetting(String key, String value) async {
     await database.then((db) async {
-      await db.execute('INSERT OR REPLACE INTO SETTINGS (key, value) VALUES (?, ?);', [key, value]);
+      await db.execute(
+          'INSERT OR REPLACE INTO SETTINGS (key, value) VALUES (?, ?);',
+          [key, value]);
     });
+  }
+
+  Future<void> savePriests(List<Map<String, dynamic>> newPriests) async {
+    var db = await database;
+    await db.delete('priests');
+    for (final priest in newPriests) {
+      await db.insert('priests', priest);
+    }
   }
 }

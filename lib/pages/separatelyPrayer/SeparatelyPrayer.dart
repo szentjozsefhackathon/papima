@@ -1,6 +1,6 @@
 import 'package:PapIma/database/DatabaseHelper.dart';
 import 'package:PapIma/models/DailyGoalProvider.dart';
-import 'package:PapIma/pages/home/DailyStreakDialog.dart';
+import 'package:PapIma/pages/separatelyPrayer/DailyStreakDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -13,13 +13,14 @@ import '../../widgets/externalImage/external_image.dart';
 import '../info/InfoPage.dart';
 import '../../common/launch_url.dart';
 import '../settings/SettingsPage.dart';
+import '../loadPriests/LoadPriests.dart';
 
-class PapImaHomePage extends StatefulWidget {
+class SeparatelyPrayer extends StatefulWidget {
   @override
-  _PapImaHomePageState createState() => _PapImaHomePageState();
+  _SeparatelyPrayerState createState() => _SeparatelyPrayerState();
 }
 
-class _PapImaHomePageState extends State<PapImaHomePage> {
+class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
   List<Map<String, dynamic>> priests = [];
   int currentIndex = 0;
   int dailyCounter = 0;
@@ -68,13 +69,6 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
     }
   }
 
-  Future<void> _savePriestsToDatabase(
-      List<Map<String, dynamic>> newPriests) async {
-    await db.delete('priests');
-    for (final priest in newPriests) {
-      await db.insert('priests', priest);
-    }
-  }
 
   Future<void> _updatePriestList() async {
     try {
@@ -92,10 +86,9 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
 
         setState(() {
           priests = newPriests;
-          currentIndex = 0;
+          _updateIndex("1");
         });
-
-        await _savePriestsToDatabase(newPriests);
+        await DatabaseHelper().savePriests(newPriests);
       }
     } catch (e) {
       print('Failed to fetch priests: $e');
@@ -138,16 +131,17 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
       return;
     }
     final yesterday = DateTime.now().add(Duration(days: -1));
-    final yesterdayDate = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
+    final yesterdayDate =
+        '${yesterday.year}-${yesterday.month}-${yesterday.day}';
     final today = DateTime.now();
     final date = '${today.year}-${today.month}-${today.day}';
-    final res =
-        await db.query('dailyStreak', where: 'date = ?', whereArgs: [yesterdayDate]);
+    final res = await db
+        .query('dailyStreak', where: 'date = ?', whereArgs: [yesterdayDate]);
     final count = res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
-    await db.rawInsert(
-        'INSERT INTO dailyStreak (date, count) VALUES (?, ?)', [date, count+1]);
+    await db.rawInsert('INSERT INTO dailyStreak (date, count) VALUES (?, ?)',
+        [date, count + 1]);
     setState(() {
-      dailyStreak = count+1;
+      dailyStreak = count + 1;
     });
   }
 
@@ -319,6 +313,23 @@ class _PapImaHomePageState extends State<PapImaHomePage> {
                               ElevatedButton(
                                 onPressed: _updatePriestList,
                                 child: Text('Paplista frissítése'),
+                              ),
+                              ElevatedButton.icon(
+                                label: Text("Papok betöltése (haladó módon)"),
+                                icon: Icon(Icons.settings),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LoadPriests(prefix: "separatelyPrayer_loadPriests", onLoad: (value) {
+                                          setState(() {
+                                            priests = value;
+                                            _updateIndex("1");
+                                          });
+                                          Navigator.pop(context);
+                                        })),
+                                  );
+                                },
                               ),
                             ],
                           ),
