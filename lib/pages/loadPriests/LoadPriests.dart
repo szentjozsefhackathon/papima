@@ -37,11 +37,15 @@ class LoadPriests extends StatefulWidget {
   @override
   _LoadPriestsState createState() => _LoadPriestsState();
 
-  String prefix;
+  final String prefix;
+  final bool page;
 
-  LoadPriests({super.key, required this.prefix, required this.onLoad});
-  Function(List<Map<String, dynamic>>) onLoad;
-  
+  LoadPriests(
+      {super.key,
+      required this.prefix,
+      required this.onLoad,
+      required this.page});
+  final Function(List<Map<String, dynamic>>) onLoad;
 }
 
 class _LoadPriestsState extends State<LoadPriests> {
@@ -63,24 +67,21 @@ class _LoadPriestsState extends State<LoadPriests> {
 
   Future<bool> _getSeminarians() async {
     final res = await db.query('settings',
-        where: 'key = ?',
-        whereArgs: ['${widget.prefix}_seminarians']);
+        where: 'key = ?', whereArgs: ['${widget.prefix}_seminarians']);
 
     return res.isNotEmpty ? res.first['value'] == '1' : true;
   }
 
   Future<bool> _getRandomStart() async {
     final res = await db.query('settings',
-        where: 'key = ?',
-        whereArgs: ['${widget.prefix}_randomStart']);
+        where: 'key = ?', whereArgs: ['${widget.prefix}_randomStart']);
 
     return res.isNotEmpty ? res.first['value'] == '1' : true;
   }
 
   Future<bool> _getRandomOrder() async {
     final res = await db.query('settings',
-        where: 'key = ?',
-        whereArgs: ['${widget.prefix}_randomOrder']);
+        where: 'key = ?', whereArgs: ['${widget.prefix}_randomOrder']);
 
     return res.isNotEmpty ? res.first['value'] == '1' : false;
   }
@@ -88,8 +89,7 @@ class _LoadPriestsState extends State<LoadPriests> {
   Future<List<Map>> _getSelectedSources() async {
     List<Map> _selectedSources = [];
     var _si = await db.query('settings',
-        where: 'key = ?',
-        whereArgs: ['${widget.prefix}_selectedSources']);
+        where: 'key = ?', whereArgs: ['${widget.prefix}_selectedSources']);
     if (_si.isEmpty) return _selectedSources;
     var si = jsonDecode(_si.first['value'].toString()) as List;
     for (int i = 0; i < si.length; i++) {
@@ -100,15 +100,13 @@ class _LoadPriestsState extends State<LoadPriests> {
 
   Future<String> _getSourceUrl() async {
     final res = await db.query('settings',
-        where: 'key = ?',
-        whereArgs: ['${widget.prefix}_sourceUrl']);
+        where: 'key = ?', whereArgs: ['${widget.prefix}_sourceUrl']);
 
     return res.isNotEmpty ? res.first['value'].toString() : sourceUrl;
   }
 
   void setDeacons(bool value) {
-    DatabaseHelper()
-        .saveSetting('${widget.prefix}_deacons', value ? '1' : '0');
+    DatabaseHelper().saveSetting('${widget.prefix}_deacons', value ? '1' : '0');
 
     setState(() {
       deacons = value;
@@ -116,8 +114,8 @@ class _LoadPriestsState extends State<LoadPriests> {
   }
 
   void setSeminarians(bool value) {
-    DatabaseHelper().saveSetting(
-        '${widget.prefix}_seminarians', value ? '1' : '0');
+    DatabaseHelper()
+        .saveSetting('${widget.prefix}_seminarians', value ? '1' : '0');
 
     setState(() {
       seminarians = value;
@@ -125,8 +123,8 @@ class _LoadPriestsState extends State<LoadPriests> {
   }
 
   void setRandomStart(bool value) {
-    DatabaseHelper().saveSetting(
-        '${widget.prefix}_randomStart', value ? '1' : '0');
+    DatabaseHelper()
+        .saveSetting('${widget.prefix}_randomStart', value ? '1' : '0');
 
     setState(() {
       randomStart = value;
@@ -134,8 +132,8 @@ class _LoadPriestsState extends State<LoadPriests> {
   }
 
   void setRandomOrder(bool value) {
-    DatabaseHelper().saveSetting(
-        '${widget.prefix}_randomOrder', value ? '1' : '0');
+    DatabaseHelper()
+        .saveSetting('${widget.prefix}_randomOrder', value ? '1' : '0');
 
     setState(() {
       randomOrder = value;
@@ -147,8 +145,8 @@ class _LoadPriestsState extends State<LoadPriests> {
     for (int i = 0; i < sources.length; i++) {
       _selectedSources.add(sources[i]['text']);
     }
-    DatabaseHelper().saveSetting('${widget.prefix}_selectedSources',
-        jsonEncode(_selectedSources));
+    DatabaseHelper().saveSetting(
+        '${widget.prefix}_selectedSources', jsonEncode(_selectedSources));
     setState(() {
       selectedSources = sources;
     });
@@ -162,7 +160,12 @@ class _LoadPriestsState extends State<LoadPriests> {
     });
   }
 
+  bool isLoading = false;
   void load() async {
+    if (isLoading) return;
+    setState(() {
+      isLoading = true;
+    });
     try {
       final response = await http.get(Uri.parse(sourceUrl));
       if (response.statusCode == 200) {
@@ -172,9 +175,7 @@ class _LoadPriestsState extends State<LoadPriests> {
             .where((e) => seminarians ? true : !(e["seminarian"] ?? false))
             .where((e) => selectedSources.isEmpty
                 ? true
-                : selectedSources
-                    .map((e) => e['text'])
-                    .contains(e['diocese']))
+                : selectedSources.map((e) => e['text']).contains(e['diocese']))
             .map((e) => {
                   'name': e['name'],
                   'img': e['img'],
@@ -182,9 +183,10 @@ class _LoadPriestsState extends State<LoadPriests> {
                   'diocese': e['diocese'],
                 })
             .toList();
-        
-        newPriests.sort((a, b) => a['name'].toString().compareTo(b['name'].toString()));
-        
+
+        newPriests.sort(
+            (a, b) => a['name'].toString().compareTo(b['name'].toString()));
+
         if (randomStart) {
           final r = Random().nextInt(newPriests.length);
           newPriests = newPriests.sublist(r)..addAll(newPriests.sublist(0, r));
@@ -193,16 +195,15 @@ class _LoadPriestsState extends State<LoadPriests> {
         if (randomOrder) {
           newPriests.shuffle();
         }
-        
-
-        await DatabaseHelper().savePriests(newPriests);
         widget.onLoad(newPriests);
       }
     } catch (e) {
       print('Failed to fetch priests: $e');
     }
-
-  } 
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   void initState() {
@@ -222,58 +223,60 @@ class _LoadPriestsState extends State<LoadPriests> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Papok betöltése'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Forrás URL',
-                ),
-                onChanged: setSourceUrl,
-                initialValue: sourceUrl,
+    final body = SingleChildScrollView(
+      child: isLoading
+          ? Column(
+              children: [
+                SizedBox(height: 316),
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Betöltés...')
+              ],
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!widget.page) Text('Papok betöltése', style: TextStyle(fontSize: 24)),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Forrás URL',
+                    ),
+                    onChanged: setSourceUrl,
+                    initialValue: sourceUrl,
+                  ),
+                  Text('Diakónusok'),
+                  Switch(value: deacons, onChanged: setDeacons),
+                  Text('Szeminaristák'),
+                  Switch(value: seminarians, onChanged: setSeminarians),
+                  Text('Véletlenszerű kezdési hely'),
+                  Switch(value: randomStart, onChanged: setRandomStart),
+                  Text('Véletlenszerű sorrend'),
+                  Switch(value: randomOrder, onChanged: setRandomOrder),
+                  Text(
+                      'Források (amennyiben nincs egy sem kijelölve, a szűrő inaktív, az első kijelöléséhez nyomjon hosszan)'),
+                  SelectList(
+                      list: widget.sources,
+                      initialValue: selectedSources,
+                      onSelectionChanged: setSelectedSources),
+                  Text(
+                      "Figyelem! A betöltés hosszabb időt vehet igénybe. Az alkalmazás magától tovább fog lépni."),
+                  ElevatedButton(
+                    onPressed: load,
+                    child: Text('Betöltés'),
+                  )
+                ],
               ),
-              Text('Diakónusok'),
-              Switch(
-                value: deacons,
-                onChanged: setDeacons
-              ),
-              Text('Szeminaristák'),
-              Switch(
-                value: seminarians,
-                onChanged: setSeminarians
-              ),
-              Text('Véletlenszerű kezdési hely'),
-              Switch(
-                value: randomStart,
-                onChanged: setRandomStart
-              ),
-              Text('Véletlenszerű sorrend'),
-              Switch(
-                value: randomOrder,
-                onChanged: setRandomOrder
-              ),
-              Text(
-                  'Források (amennyiben nincs egy sem kijelölve, a szűrő inaktív, az első kijelöléséhez nyomjon hosszan)'),
-              SelectList(
-                list: widget.sources,
-                initialValue: selectedSources,
-                onSelectionChanged: setSelectedSources
-              ),
-              ElevatedButton(
-                onPressed: load,
-                child: Text('Betöltés'),
-              )
-            ],
-          ),
-        ),
-      ),
+            ),
     );
+    return widget.page
+        ? Scaffold(
+            appBar: AppBar(
+              title: Text('Papok betöltése'),
+            ),
+            body: body,
+          )
+        : body;
   }
 }

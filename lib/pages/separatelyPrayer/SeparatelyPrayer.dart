@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../../models/BackButtonProvider.dart';
 import '../../models/SystemBarProvider.dart';
 import '../../widgets/externalImage/external_image.dart';
@@ -25,10 +23,10 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
   int currentIndex = 0;
   int dailyCounter = 0;
   int dailyStreak = 0;
-  String sourceUrl =
-      'https://szentjozsefhackathon.github.io/sematizmus/papima.json';
+
   late Database db;
   bool showAdvanced = false;
+  bool checked = false;
 
   @override
   void initState() {
@@ -49,9 +47,10 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
         priests = result;
         currentIndex = 0;
       });
-    } else {
-      _updatePriestList();
     }
+    setState(() {
+      checked = true;
+    });
   }
 
   Future<void> _loadIndexFromDatabase() async {
@@ -65,33 +64,6 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
       setState(() {
         currentIndex = 0;
       });
-      ;
-    }
-  }
-
-
-  Future<void> _updatePriestList() async {
-    try {
-      final response = await http.get(Uri.parse(sourceUrl));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List;
-        final newPriests = data
-            .map((e) => {
-                  'name': e['name'],
-                  'img': e['img'],
-                  'src': e['src'],
-                  'diocese': e['diocese'],
-                })
-            .toList();
-
-        setState(() {
-          priests = newPriests;
-          _updateIndex("1");
-        });
-        await DatabaseHelper().savePriests(newPriests);
-      }
-    } catch (e) {
-      print('Failed to fetch priests: $e');
     }
   }
 
@@ -148,12 +120,38 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
   void _nextPriest() {
     setState(() {
       if (currentIndex == priests.length - 1) {
-        _updatePriestList();
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Gratulálok!'),
+              content: const Text('Végigimádkoztad a papokat!'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    _deletePriestList();
+                    Navigator.of(context).pop(); // Művelet és bezárás
+                  },
+                  child: const Text('Újrakezdés'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
       }
       currentIndex = (currentIndex + 1) % priests.length;
       DatabaseHelper().saveSetting("index", currentIndex.toString());
       _increaseDailyCounter();
       _updateDailyStreak();
+    });
+  }
+
+  void _deletePriestList() {
+    setState(() {
+      priests = [];
+      DatabaseHelper().savePriests(priests);
     });
   }
 
@@ -173,18 +171,12 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
 
   void _updateIndex(String value) {
     final index = int.tryParse(value);
-    if (index != null && index >= 0 && index < priests.length) {
+    if (index != null && index >= 0 && index <= priests.length) {
       setState(() {
         currentIndex = index - 1;
       });
       DatabaseHelper().saveSetting("index", currentIndex.toString());
     }
-  }
-
-  void _updateSource(String value) {
-    setState(() {
-      sourceUrl = value;
-    });
   }
 
   @override
@@ -237,10 +229,30 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
         body: SingleChildScrollView(
           child: Center(
             child: priests.isEmpty
-                ? Column(children: [
-                    SizedBox(height: 316),
-                    CircularProgressIndicator()
-                  ])
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: checked
+                        ? [
+                            LoadPriests(
+                                page: false,
+                                prefix: "separatelyPrayer_loadPriests",
+                                onLoad: (value) {
+                                  setState(() {
+                                    DatabaseHelper()
+                                        .savePriests(value)
+                                        .then((v) {
+                                      priests = value;
+                                      _updateIndex("1");
+                                    });
+                                  });
+                                })
+                          ]
+                        : [
+                            SizedBox(height: 316),
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text("Papok betöltése...")
+                          ])
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -302,34 +314,10 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                 ],
                               ),
                               SizedBox(height: 16),
-                              TextFormField(
-                                decoration: InputDecoration(
-                                  labelText: 'Forrás URL',
-                                ),
-                                onChanged: _updateSource,
-                                initialValue: sourceUrl,
-                              ),
-                              SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: _updatePriestList,
-                                child: Text('Paplista frissítése'),
-                              ),
                               ElevatedButton.icon(
-                                label: Text("Papok betöltése (haladó módon)"),
-                                icon: Icon(Icons.settings),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => LoadPriests(prefix: "separatelyPrayer_loadPriests", onLoad: (value) {
-                                          setState(() {
-                                            priests = value;
-                                            _updateIndex("1");
-                                          });
-                                          Navigator.pop(context);
-                                        })),
-                                  );
-                                },
+                                onPressed: _deletePriestList,
+                                label: Text('Paplista törlése (és frissítése)'),
+                                icon: Icon(Icons.delete),
                               ),
                             ],
                           ),
