@@ -43,6 +43,7 @@ dependencies:
   web:
   path: ^1.9.0
   provider: ^6.1.2
+  flutter_tts:
 dev_dependencies:
   flutter_test:
     sdk: flutter

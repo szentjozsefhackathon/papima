@@ -13,6 +13,8 @@ import '../../common/launch_url.dart';
 import '../settings/SettingsPage.dart';
 import '../loadPriests/LoadPriests.dart';
 
+import '../../common/tts.dart';
+
 class SeparatelyPrayer extends StatefulWidget {
   @override
   _SeparatelyPrayerState createState() => _SeparatelyPrayerState();
@@ -319,6 +321,11 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                 label: Text('Paplista törlése (és frissítése)'),
                                 icon: Icon(Icons.delete),
                               ),
+                              ElevatedButton.icon(icon: Icon(Icons.speaker), label: Text('Olvasd fel'), onPressed: () async {
+                                final tts = await TTS().get;
+                                await tts.speak(currentPriest!['name']);
+                                await tts.speak(currentPriest['diocese']);
+                              }),
                             ],
                           ),
                         ),
