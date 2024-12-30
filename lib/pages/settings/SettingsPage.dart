@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../models/AutoProvider.dart';
 import '../../models/BackButtonProvider.dart';
 import '../../models/DailyGoalProvider.dart';
 import '../../models/SystemBarProvider.dart';
@@ -14,7 +15,7 @@ class SettingsPage extends StatelessWidget {
     final systemBarProvider = Provider.of<SystemBarProvider>(context);
     final dailyGoalProvider = Provider.of<DailyGoalProvider>(context);
     final backButtonProvider = Provider.of<BackButtonProvider>(context);
-
+    final autoProvider = Provider.of<AutoProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text('Beállítások'),
@@ -85,6 +86,26 @@ class SettingsPage extends StatelessWidget {
                     },
                     initialValue: dailyGoalProvider.dailyGoal.toString(),
                     keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                  ),
+                Text('Automatikus lejátszás'),
+                Switch(
+                  value: autoProvider.enabled,
+                  onChanged: (bool value) {
+                    autoProvider.setEnabled(value);
+                  },
+                ),
+                if (autoProvider.enabled)
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Másodperc',
+                    ),
+                    onChanged: (value) {
+                      autoProvider.setSeconds(int.tryParse(value) ?? 30);
+                    },
+                    initialValue: autoProvider.seconds.toString(),
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.digitsOnly
                     ],

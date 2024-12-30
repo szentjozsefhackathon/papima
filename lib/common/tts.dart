@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class TTS {
@@ -20,27 +21,27 @@ class TTS {
 
   Future<FlutterTts> _initTTS() async {
     FlutterTts tts = FlutterTts();
-    if (await tts.isLanguageAvailable("hu-HU")) {
-      await tts.setLanguage("hu-HU");
-    } else {
-      await tts.setLanguage("en-US");
-    }
-    await tts.setSpeechRate(1);
+    await tts.setLanguage("en-US");
+    await tts.setLanguage("hu-HU");
+
+    await tts.setSpeechRate(0.5);
     await tts.setVolume(1.0);
     await tts.setPitch(1.0);
     await tts.awaitSpeakCompletion(true);
-    if (Platform.isIOS) {
-      await tts.setSharedInstance(true);
-      await tts.setIosAudioCategory(
-          IosTextToSpeechAudioCategory.ambient,
-          [
-            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-            IosTextToSpeechAudioCategoryOptions.mixWithOthers
-          ],
-          IosTextToSpeechAudioMode.voicePrompt);
+    if (!kIsWeb) {
+      if (Platform.isIOS) {
+        await tts.setSharedInstance(true);
+        await tts.setIosAudioCategory(
+            IosTextToSpeechAudioCategory.playback,
+            [
+              IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+              IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+              IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+              IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
+            ],
+            IosTextToSpeechAudioMode.voicePrompt);
+      }
     }
     return tts;
-    
   }
 }

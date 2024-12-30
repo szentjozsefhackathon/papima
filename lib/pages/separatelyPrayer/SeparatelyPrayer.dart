@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
+import '../../models/AutoProvider.dart';
 import '../../models/BackButtonProvider.dart';
 import '../../models/SystemBarProvider.dart';
 import '../../widgets/externalImage/external_image.dart';
@@ -29,6 +30,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
   late Database db;
   bool showAdvanced = false;
   bool checked = false;
+  bool auto = false;
 
   @override
   void initState() {
@@ -181,12 +183,31 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
     }
   }
 
+  Future<void> readPriest() async {
+    final tts = await TTS().get;
+    await tts.speak(
+        "${priests[currentIndex]['name']}, ${priests[currentIndex]['diocese']}");
+  }
+
+  void _auto(int seconds) async {
+    if (auto) {
+      await readPriest();
+      Future.delayed(Duration(seconds: seconds), () {
+        if (auto) {
+          _nextPriest();
+          _auto(seconds);
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentPriest = priests.isNotEmpty ? priests[currentIndex] : null;
     final backButtonProvider = Provider.of<BackButtonProvider>(context);
     final dailyGoalProvider = Provider.of<DailyGoalProvider>(context);
     final systemBarProvider = Provider.of<SystemBarProvider>(context);
+    final autoProvider = Provider.of<AutoProvider>(context);
 
     SystemChrome.setEnabledSystemUIMode(systemBarProvider.fullScreen
         ? SystemUiMode.immersive
@@ -206,6 +227,15 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                       context: context,
                       builder: (BuildContext context) => DailyStreakDialog());
                 }),
+            if(autoProvider.enabled) IconButton(
+              icon: Icon(auto ? Icons.stop : Icons.directions_car),
+              onPressed: () {
+                setState(() {
+                  auto = !auto;
+                  _auto(autoProvider.seconds);
+                });
+              },
+            ),
             IconButton(
               icon: Icon(Icons.info_outline),
               onPressed: () {
@@ -321,11 +351,6 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                 label: Text('Paplista törlése (és frissítése)'),
                                 icon: Icon(Icons.delete),
                               ),
-                              ElevatedButton.icon(icon: Icon(Icons.speaker), label: Text('Olvasd fel'), onPressed: () async {
-                                final tts = await TTS().get;
-                                await tts.speak(currentPriest!['name']);
-                                await tts.speak(currentPriest['diocese']);
-                              }),
                             ],
                           ),
                         ),
