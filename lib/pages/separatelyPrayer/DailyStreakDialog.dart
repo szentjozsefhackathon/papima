@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'History.dart';
+
 
 class DailyStreakDialog extends StatelessWidget {
   @override
@@ -14,6 +16,13 @@ class DailyStreakDialog extends StatelessWidget {
         ],
       ),
       actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => History()));
+          },
+          child: Text('Előzmények megtekintése'),
+        ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();

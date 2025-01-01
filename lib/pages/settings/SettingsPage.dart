@@ -1,3 +1,4 @@
+import 'package:PapIma/database/DatabaseHelper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,8 +8,27 @@ import '../../models/BackButtonProvider.dart';
 import '../../models/DailyGoalProvider.dart';
 import '../../models/SystemBarProvider.dart';
 import '../../models/ThemeProvider.dart';
+import '../../models/SeparatelyPrayerSettingsProvider.dart';
+import '../../common/first_where_or_first.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
+  @override
+  _SettinsPageState createState() => _SettinsPageState();
+}
+
+class _SettinsPageState extends State<SettingsPage> {
+  List<Map> prayers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    DatabaseHelper().prayers.then((value) {
+      setState(() {
+        prayers = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -16,6 +36,8 @@ class SettingsPage extends StatelessWidget {
     final dailyGoalProvider = Provider.of<DailyGoalProvider>(context);
     final backButtonProvider = Provider.of<BackButtonProvider>(context);
     final autoProvider = Provider.of<AutoProvider>(context);
+    final settingsProvider =
+        Provider.of<SeparatelyPrayerSettingsProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text('Beállítások'),
@@ -110,6 +132,36 @@ class SettingsPage extends StatelessWidget {
                       FilteringTextInputFormatter.digitsOnly
                     ],
                   ),
+                if (prayers.isNotEmpty) ...[
+                  Text('Imádság megjelenítése'),
+                  Switch(
+                    value: settingsProvider.prayer['enabled'],
+                    onChanged: (bool value) {
+                      settingsProvider.setPrayer({
+                        'enabled': value,
+                        'id': settingsProvider.prayer['id'],
+                      });
+                    },
+                  ),
+                  if (settingsProvider.prayer['enabled'])
+                    DropdownButton<String>(
+                      value: (firstWhereOrFirst(prayers, (prayer) {
+                        return prayer['id'] == settingsProvider.prayer['id'];
+                      })?['id']??prayers[0]['id']).toString(),
+                      onChanged: (String? value) {
+                        settingsProvider.setPrayer({
+                          'enabled': settingsProvider.prayer['enabled'],
+                          'id': value!,
+                        });
+                      },
+                      items: prayers.map((prayer) {
+                        return DropdownMenuItem<String>(
+                          value: prayer['id'].toString(),
+                          child: Text(prayer['name']),
+                        );
+                      }).toList(),
+                    )
+                ]
               ],
             ),
           ),

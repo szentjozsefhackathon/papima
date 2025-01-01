@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'models/AutoProvider.dart';
 import 'models/BackButtonProvider.dart';
 import 'models/DailyGoalProvider.dart';
+import 'models/SeparatelyPrayerSettingsProvider.dart';
 import 'models/SystemBarProvider.dart';
 import 'models/ThemeProvider.dart';
 import 'pages/separatelyPrayer/SeparatelyPrayer.dart';
@@ -15,6 +16,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => DailyGoalProvider()),
       ChangeNotifierProvider(create: (_) => BackButtonProvider()),
       ChangeNotifierProvider(create: (_) => AutoProvider()),
+      ChangeNotifierProvider(create: (_) => SeparatelyPrayerSettingsProvider()),
     ],
     child: PapImaApp())
   );

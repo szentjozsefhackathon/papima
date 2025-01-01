@@ -7,12 +7,14 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../models/AutoProvider.dart';
 import '../../models/BackButtonProvider.dart';
+import '../../models/SeparatelyPrayerSettingsProvider.dart';
 import '../../models/SystemBarProvider.dart';
 import '../../widgets/externalImage/external_image.dart';
 import '../info/InfoPage.dart';
 import '../../common/launch_url.dart';
 import '../settings/SettingsPage.dart';
 import '../loadPriests/LoadPriests.dart';
+import '../../common/first_where_or_first.dart';
 
 import '../../common/tts.dart';
 
@@ -31,7 +33,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
   bool showAdvanced = false;
   bool checked = false;
   bool auto = false;
-
+  List<Map> prayers = [];
   @override
   void initState() {
     super.initState();
@@ -41,6 +43,12 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
       _loadIndexFromDatabase();
       _getDailyCounter().then((value) => setState(() => dailyCounter = value));
       _getDailyStreak().then((value) => setState(() => dailyStreak = value));
+    });
+
+    DatabaseHelper().prayers.then((value) {
+      setState(() {
+        prayers = value;
+      });
     });
   }
 
@@ -208,7 +216,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
     final dailyGoalProvider = Provider.of<DailyGoalProvider>(context);
     final systemBarProvider = Provider.of<SystemBarProvider>(context);
     final autoProvider = Provider.of<AutoProvider>(context);
-
+    final settingsProvider =
+        Provider.of<SeparatelyPrayerSettingsProvider>(context);
     SystemChrome.setEnabledSystemUIMode(systemBarProvider.fullScreen
         ? SystemUiMode.immersive
         : SystemUiMode.edgeToEdge);
@@ -227,15 +236,16 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                       context: context,
                       builder: (BuildContext context) => DailyStreakDialog());
                 }),
-            if(autoProvider.enabled) IconButton(
-              icon: Icon(auto ? Icons.stop : Icons.directions_car),
-              onPressed: () {
-                setState(() {
-                  auto = !auto;
-                  _auto(autoProvider.seconds);
-                });
-              },
-            ),
+            if (autoProvider.enabled)
+              IconButton(
+                icon: Icon(auto ? Icons.stop : Icons.directions_car),
+                onPressed: () {
+                  setState(() {
+                    auto = !auto;
+                    _auto(autoProvider.seconds);
+                  });
+                },
+              ),
             IconButton(
               icon: Icon(Icons.info_outline),
               onPressed: () {
@@ -312,6 +322,19 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                             .replaceAll("Rendtarománya", "Rendtartománya")),
                       ],
                       SizedBox(height: 16),
+                      if (settingsProvider.prayer['enabled'] &&
+                          settingsProvider.prayer['id'] != null)
+                        SizedBox(
+                            width: 300,
+                            child: Text(
+                                firstWhereOrFirst(
+                                        prayers,
+                                        (element) =>
+                                            element['id'] ==
+                                            settingsProvider
+                                                .prayer['id'])?['text'] ??
+                                    "",
+                                textAlign: TextAlign.justify)),
                       ElevatedButton(
                         onPressed: _nextPriest,
                         child: Text('Következő'),
