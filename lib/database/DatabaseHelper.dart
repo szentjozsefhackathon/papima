@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:PapIma/models/SeparatelyPrayerSettingsProvider.dart';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:http/http.dart' as http;
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -42,19 +42,42 @@ class DatabaseHelper {
 
     //todo: remove hardcode
     var result = await _db.query('prayers', where: 'isdefault = ?', whereArgs: [1]);
-    if (result.length != 1) {
-      print("result length: ${result.length}");
+    var prayers = await _downloadPrayers();
+    if (result.length != prayers.length) {
       await _db.delete('prayers', where: 'isdefault = ?', whereArgs: [1]);
-      await _db.insert('prayers', {
-        "name": "Úr imádsága",
-        "text": "Mi Atyánk, aki a mennyekben vagy, szenteltessék meg a te neved; jöjjön el a te országod; legyen meg a te akaratod, amint a mennyben, úgy a földön is. Mindennapi kenyerünket add meg nekünk ma; és bocsásd meg vétkeinket, miképpen mi is megbocsátunk az ellenünk vétkezőknek; és ne vígy minket kísértésbe, de szabadíts meg a gonosztól. Ámen.",
-        "isdefault": 1
-      });
+      for (final prayer in prayers) {
+        await _db.insert('prayers', {
+          'name': prayer['name'],
+          'text': prayer['text'],
+          'isdefault': 1
+        });
+      }
     }
 
      
     return _db;
   }
+
+  Future<List<Map>> _downloadPrayers() async {
+  List<Map> prayers = [];
+    try {
+      final response = await http.get(Uri.parse("https://papima.hu/prayers.json"));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List;
+        prayers = data
+            .map((e) => {
+                  'name': e['name'],
+                  'text': e['text'],
+                })
+            .toList();
+      }
+    } catch (e) {
+      print('Failed to fetch prayers: $e');
+    }
+    return prayers;
+
+  } 
 
   Future<void> saveSetting(String key, String value) async {
     await database.then((db) async {

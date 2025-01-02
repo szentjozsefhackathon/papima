@@ -27,6 +27,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
   List<Map<String, dynamic>> priests = [];
   int currentIndex = 0;
   int dailyCounter = 0;
+  String dailyCounterDate = '';
   int dailyStreak = 0;
 
   late Database db;
@@ -79,12 +80,19 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
     }
   }
 
-  void _increaseDailyCounter({int amount = 1}) {
+  void _increaseDailyCounter({int amount = 1}) async {
+    final now = DateTime.now();
+    final date = '${now.year}-${now.month}-${now.day}';
+    if (dailyCounterDate != date) {
+      final dc = await _getDailyCounter();
+      setState(() {
+        dailyCounter = dc;
+        dailyCounterDate = date;
+      });
+    }
     if (dailyCounter + amount < 0) {
       amount = dailyCounter;
     }
-    final now = DateTime.now();
-    final date = '${now.year}-${now.month}-${now.day}';
     db.rawInsert(
         'INSERT OR REPLACE INTO days (date, count) VALUES (?, COALESCE((SELECT count FROM days WHERE date = ?), 0) + ?)',
         [date, date, amount]);
@@ -93,8 +101,10 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
 
   Future<int> _getDailyCounter() async {
     final now = DateTime.now();
-    final date = '${now.year}-${now.month}-${now.day}';
-    final res = await db.query('days', where: 'date = ?', whereArgs: [date]);
+    setState(() {
+      dailyCounterDate = '${now.year}-${now.month}-${now.day}';
+    });
+    final res = await db.query('days', where: 'date = ?', whereArgs: [dailyCounterDate]);
     return res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
   }
 
@@ -330,9 +340,9 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                 firstWhereOrFirst(
                                         prayers,
                                         (element) =>
-                                            element['id'] ==
+                                            element['id'].toString() ==
                                             settingsProvider
-                                                .prayer['id'])?['text'] ??
+                                                .prayer['id'].toString())?['text'] ??
                                     "",
                                 textAlign: TextAlign.justify)),
                       ElevatedButton(

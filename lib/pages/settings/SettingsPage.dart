@@ -146,7 +146,7 @@ class _SettinsPageState extends State<SettingsPage> {
                   if (settingsProvider.prayer['enabled'])
                     DropdownButton<String>(
                       value: (firstWhereOrFirst(prayers, (prayer) {
-                        return prayer['id'] == settingsProvider.prayer['id'];
+                        return prayer['id'].toString() == settingsProvider.prayer['id'].toString();
                       })?['id']??prayers[0]['id']).toString(),
                       onChanged: (String? value) {
                         settingsProvider.setPrayer({
