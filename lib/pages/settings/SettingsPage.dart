@@ -1,4 +1,5 @@
 import 'package:PapIma/database/DatabaseHelper.dart';
+import 'package:PapIma/pages/settings/PrayerList.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -143,11 +144,14 @@ class _SettinsPageState extends State<SettingsPage> {
                       });
                     },
                   ),
-                  if (settingsProvider.prayer['enabled'])
+                  if (settingsProvider.prayer['enabled']) ...[
                     DropdownButton<String>(
                       value: (firstWhereOrFirst(prayers, (prayer) {
-                        return prayer['id'].toString() == settingsProvider.prayer['id'].toString();
-                      })?['id']??prayers[0]['id']).toString(),
+                                return prayer['id'].toString() ==
+                                    settingsProvider.prayer['id'].toString();
+                              })?['id'] ??
+                              prayers[0]['id'])
+                          .toString(),
                       onChanged: (String? value) {
                         settingsProvider.setPrayer({
                           'enabled': settingsProvider.prayer['enabled'],
@@ -160,7 +164,23 @@ class _SettinsPageState extends State<SettingsPage> {
                           child: Text(prayer['name']),
                         );
                       }).toList(),
-                    )
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PrayerListPage(onChange: () async {
+                                var p = await DatabaseHelper().prayers;
+                                setState(() {
+                                  prayers = p;
+                                });
+                              },)),
+                        );
+                      },
+                      child: Text('Imádságok kezelése'),
+                    ),
+                  ]
                 ]
               ],
             ),

@@ -335,7 +335,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                       if (settingsProvider.prayer['enabled'] &&
                           settingsProvider.prayer['id'] != null)
                         SizedBox(
-                            width: 300,
+                            width: 300 + settingsProvider.prayer['id'].toString().length*0.0,
                             child: Text(
                                 firstWhereOrFirst(
                                         prayers,
