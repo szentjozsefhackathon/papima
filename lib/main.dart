@@ -30,8 +30,8 @@ class PapImaApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'PapIma',
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+      darkTheme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark)),
       themeMode: themeProvider.themeMode,
       home: SeparatelyPrayer(),
     );
