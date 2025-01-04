@@ -39617,8 +39617,9 @@ s.b=r
 s.V()},
 $S:32}
 A.amJ.prototype={
-$1(a){var s=this.a
-s.qQ(A.W(["enabled",a,"id",s.a.h(0,"id")],t.N,t.z))},
+$1(a){var s=this.a,r=s.a
+r.n(0,"enabled",a)
+s.qQ(r)},
 $S:8}
 A.amK.prototype={
 $1(a){var s=null,r=A.aW("Im\xe1ds\xe1g "+A.i(a.h(0,"text"))+"\xe9rt",s,s,s,s,s,s),q=this.a,p=this.b,o=A.aAL(q.d,new A.amy(p,a))

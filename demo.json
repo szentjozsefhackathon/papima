@@ -1,0 +1,16 @@
+[
+    {
+        "name": "Ladislaus Exemplar",
+        "diocese": "Exemplar Diocesis",
+        "birth": null,
+        "img": "https://szentjozsefhackathon.github.io/sematizmus/ftPlaceholder.png",
+        "src": "",
+        "ordination": null,
+        "retired": false,
+        "bishop": false,
+        "deacon": false,
+        "orderAbbreviation": "",
+        "doctor": false,
+        "seminarist": null
+    }
+]
