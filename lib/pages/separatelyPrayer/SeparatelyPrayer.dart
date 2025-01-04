@@ -104,7 +104,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
     setState(() {
       dailyCounterDate = '${now.year}-${now.month}-${now.day}';
     });
-    final res = await db.query('days', where: 'date = ?', whereArgs: [dailyCounterDate]);
+    final res = await db
+        .query('days', where: 'date = ?', whereArgs: [dailyCounterDate]);
     return res.isNotEmpty ? int.parse(res.first['count'].toString()) : 0;
   }
 
@@ -219,6 +220,34 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
     }
   }
 
+  String order(int? orderNum) {
+    switch (orderNum) {
+      case 0:
+        return 'Papnövendék';
+      case 1:
+        return 'Diakónus';
+      case 2:
+        return 'Pap';
+      case 3:
+        return 'Püspök';
+    }
+    return "";
+  }
+
+  String orderName(int? orderNum) {
+    switch (orderNum) {
+      case 0:
+        return 'seminarist';
+      case 1:
+        return 'deacon';
+      case 3:
+        return 'bishop';
+      case 2:
+      default:
+        return 'priest';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentPriest = priests.isNotEmpty ? priests[currentIndex] : null;
@@ -330,19 +359,27 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                         Text(currentPriest['diocese']
                             .toString()
                             .replaceAll("Rendtarománya", "Rendtartománya")),
+                        if (currentPriest['order'] != null) ...[
+                          SizedBox(height: 8),
+                          Text(order(currentPriest['order'])),
+                        ],
                       ],
                       SizedBox(height: 16),
                       if (settingsProvider.prayer['enabled'] &&
-                          settingsProvider.prayer['id'] != null)
+                          settingsProvider.prayer[orderName(currentPriest?['order'])] != null)
                         SizedBox(
-                            width: 300 + settingsProvider.prayer['id'].toString().length*0.0,
+                            width: 300 +
+                                settingsProvider.prayer['id']
+                                        .toString()
+                                        .length *
+                                    0.0,
                             child: Text(
                                 firstWhereOrFirst(
                                         prayers,
                                         (element) =>
                                             element['id'].toString() ==
-                                            settingsProvider
-                                                .prayer['id'].toString())?['text'] ??
+                                            settingsProvider.prayer[orderName(currentPriest?['order'])]
+                                                .toString())?['text'] ??
                                     "",
                                 textAlign: TextAlign.justify)),
                       ElevatedButton(
@@ -373,7 +410,6 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                   labelText: 'Aktuális index',
                                 ),
                                 onSubmitted: _updateIndex,
-                                keyboardType: TextInputType.number,
                                 inputFormatters: <TextInputFormatter>[
                                   FilteringTextInputFormatter.digitsOnly
                                 ],
@@ -384,6 +420,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                 label: Text('Paplista törlése (és frissítése)'),
                                 icon: Icon(Icons.delete),
                               ),
+                              SizedBox(height: 8),
+                              Text(currentPriest.toString()),
                             ],
                           ),
                         ),

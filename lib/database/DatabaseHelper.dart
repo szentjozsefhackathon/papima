@@ -6,6 +6,16 @@ import 'package:path/path.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:http/http.dart' as http;
 
+enum ColumnType {
+  integer('INTEGER'),
+  real('REAL'),
+  text('TEXT'),
+  blob('BLOB');
+
+  final String sqlType;
+  const ColumnType(this.sqlType);
+}
+
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
 
@@ -39,7 +49,7 @@ class DatabaseHelper {
     await _db.execute(
         'CREATE TABLE IF NOT EXISTS dailyStreak (date TEXT PRIMARY KEY, count INTEGER)');
     await _db.execute('CREATE TABLE IF NOT EXISTS prayers (id INTEGER PRIMARY KEY, name TEXT, text TEXT, isdefault INTEGER)');
-
+    await addColumnIfNotExists(database: _db, tableName: "priests", columnName: "order", columnType: ColumnType.integer, defaultValue: null, isNullable: true);
     //todo: remove hardcode
     var result = await _db.query('prayers', where: 'isdefault = ?', whereArgs: [1]);
     var prayers = await _downloadPrayers();
@@ -124,4 +134,36 @@ class DatabaseHelper {
     final p = await db.query('prayers');
     return p;
   }
+
+
+/// Formázza az alapértelmezett értéket az SQL kifejezésben való használathoz.
+String _formatDefaultValue(dynamic value) {
+  if (value is String) {
+    return '\'$value\''; // Szöveges értékek idézőjelek közé kerülnek.
+  } else if (value is num || value is bool) {
+    return value.toString();
+  } else {
+    throw ArgumentError('Nem támogatott alapértelmezett érték: $value');
+  }
+}
+Future<void> addColumnIfNotExists({
+  required Database database,
+  required String tableName,
+  required String columnName,
+  required ColumnType columnType,
+  required bool isNullable,
+  dynamic defaultValue,
+}) async {
+  final List<Map<String, dynamic>> tableInfo = await database.rawQuery('PRAGMA table_info($tableName);');
+
+  final bool columnExists = tableInfo.any((column) => column['name'] == columnName);
+
+  if (!columnExists) {
+    final String defaultClause = defaultValue != null ? ' DEFAULT ${_formatDefaultValue(defaultValue)}' : '';
+    final String nullableClause = isNullable ? '' : ' NOT NULL';
+    final String sql = 'ALTER TABLE $tableName ADD COLUMN \'$columnName\' ${columnType.sqlType}$nullableClause$defaultClause;';
+
+    await database.execute(sql);
+  }
+}
 }

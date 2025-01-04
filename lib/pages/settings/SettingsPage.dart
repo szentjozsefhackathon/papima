@@ -39,6 +39,12 @@ class _SettinsPageState extends State<SettingsPage> {
     final autoProvider = Provider.of<AutoProvider>(context);
     final settingsProvider =
         Provider.of<SeparatelyPrayerSettingsProvider>(context);
+    final List<Map<String, dynamic>> orders = [
+      {'name': 'priest', 'text': 'Pap'},
+      {'name': 'seminarist', 'text': 'Szeminarista'},
+      {'name': 'deacon', 'text': 'Diakónus'},
+      {'name': 'bishop', 'text': 'Püspök'},
+    ];
     return Scaffold(
         appBar: AppBar(
           title: Text('Beállítások'),
@@ -138,44 +144,51 @@ class _SettinsPageState extends State<SettingsPage> {
                   Switch(
                     value: settingsProvider.prayer['enabled'],
                     onChanged: (bool value) {
-                      settingsProvider.setPrayer({
-                        'enabled': value,
-                        'id': settingsProvider.prayer['id'],
-                      });
+                      var _prayer = settingsProvider.prayer;
+                      _prayer['enabled'] = value;
+                      settingsProvider.setPrayer(_prayer);
                     },
                   ),
                   if (settingsProvider.prayer['enabled']) ...[
-                    DropdownButton<String>(
-                      value: (firstWhereOrFirst(prayers, (prayer) {
-                                return prayer['id'].toString() ==
-                                    settingsProvider.prayer['id'].toString();
-                              })?['id'] ??
-                              prayers[0]['id'])
-                          .toString(),
-                      onChanged: (String? value) {
-                        settingsProvider.setPrayer({
-                          'enabled': settingsProvider.prayer['enabled'],
-                          'id': value!,
-                        });
-                      },
-                      items: prayers.map((prayer) {
-                        return DropdownMenuItem<String>(
-                          value: prayer['id'].toString(),
-                          child: Text(prayer['name']),
-                        );
-                      }).toList(),
-                    ),
+                    ...orders.map((e) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Imádság ${e['text']}ért'),
+                            DropdownButton<String>(
+                              value: (firstWhereOrFirst(prayers, (prayer) {
+                                        return prayer['id'].toString() ==
+                                            settingsProvider.prayer[e['name']]
+                                                .toString();
+                                      })?['id'] ??
+                                      prayers[0]['id'])
+                                  .toString(),
+                              onChanged: (String? value) {
+                                var _prayer = settingsProvider.prayer;
+                                _prayer[e['name']] = int.parse(value!);
+                                settingsProvider.setPrayer(_prayer);
+                              },
+                              items: prayers.map((prayer) {
+                                return DropdownMenuItem<String>(
+                                  value: prayer['id'].toString(),
+                                  child: Text(prayer['name']),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        )),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => PrayerListPage(onChange: () async {
-                                var p = await DatabaseHelper().prayers;
-                                setState(() {
-                                  prayers = p;
-                                });
-                              },)),
+                              builder: (context) => PrayerListPage(
+                                    onChange: () async {
+                                      var p = await DatabaseHelper().prayers;
+                                      setState(() {
+                                        prayers = p;
+                                      });
+                                    },
+                                  )),
                         );
                       },
                       child: Text('Imádságok kezelése'),

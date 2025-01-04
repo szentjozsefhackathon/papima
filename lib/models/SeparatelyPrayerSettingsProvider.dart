@@ -5,7 +5,10 @@ class SeparatelyPrayerSettingsProvider extends ChangeNotifier {
 
   Map<String, dynamic> _prayer = {
     'enabled': false,
-    'id': null
+    'priest': null,
+    'seminarist': null,
+    'deacon': null,
+    'bishop': null
   };
   @override
   SeparatelyPrayerSettingsProvider() {
@@ -14,9 +17,12 @@ class SeparatelyPrayerSettingsProvider extends ChangeNotifier {
       if (result.isNotEmpty) {
         _prayer['enabled'] = result.first['value'] == '1';
       }
-      result = await db.query('settings', where: 'key = ?', whereArgs: ['separatelyPrayerPrayerId']);
-      if (result.isNotEmpty) {
-        _prayer['id'] = result.first['value'];
+      List<String> orders = ['priest', 'seminarist', 'deacon', 'bishop'];
+      for (var order in orders) {
+        result = await db.query('settings', where: 'key = ?', whereArgs: ['separatelyPrayerPrayer${order[0].toUpperCase()}${order.substring(1)}']);
+        if (result.isNotEmpty) {
+          _prayer[order] = result.first['value'];
+        }
       }
       notifyListeners();
     });
@@ -25,16 +31,20 @@ class SeparatelyPrayerSettingsProvider extends ChangeNotifier {
   Map<String, dynamic> get prayer => _prayer;
 
   void setPrayer(Map<String, dynamic> prayer) async {
-    if (!prayer.containsKey('enabled') || !prayer.containsKey('id') || prayer.length != 2) {
+    List<String> orders = ['priest', 'seminarist', 'deacon', 'bishop'];
+    if (!prayer.containsKey('enabled') || prayer.length != orders.length + 1 || !orders.every((element) => prayer.containsKey(element) && (prayer[element] == null || prayer[element] is int))) {
       throw Exception('Invalid prayer object');
     }
 
 
     DatabaseHelper().saveSetting('separatelyPrayerPrayerEnabled', prayer['enabled'] ? '1' : '0');
-    if (prayer['id'] == null) {
-      prayer['id'] = (await DatabaseHelper().prayers)[0]['id'];
+    for (var order in orders) {
+      if (prayer[order] == null) {
+        prayer[order] = (await DatabaseHelper().prayers)[0]['id'];
+      }
+
+      DatabaseHelper().saveSetting('separatelyPrayerPrayer${order[0].toUpperCase()}${order.substring(1)}', prayer[order]?.toString() ?? '');
     }
-    DatabaseHelper().saveSetting('separatelyPrayerPrayerId', prayer['id'].toString());
     _prayer = prayer;
     notifyListeners();
   }

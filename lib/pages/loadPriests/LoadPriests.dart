@@ -159,9 +159,15 @@ class _LoadPriestsState extends State<LoadPriests> {
       sourceUrl = url;
     });
   }
-
+  int order(Map<String, dynamic> priest) {
+    if (priest['seminarist'] ?? false) return 0;
+    if (priest['deacon'] ?? false) return 1;
+    if (priest['bishop'] ?? false) return 3;
+    return 2;
+  } 
   bool isLoading = false;
   void load() async {
+    print('Loading priests');
     if (isLoading) return;
     setState(() {
       isLoading = true;
@@ -181,6 +187,7 @@ class _LoadPriestsState extends State<LoadPriests> {
                   'img': e['img'],
                   'src': e['src'],
                   'diocese': e['diocese'],
+                  'order': order(e),
                 })
             .toList();
 
