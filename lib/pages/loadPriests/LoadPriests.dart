@@ -52,7 +52,8 @@ class _LoadPriestsState extends State<LoadPriests> {
   bool deacons = true,
       seminarians = true,
       randomStart = true,
-      randomOrder = false;
+      randomOrder = false,
+      advanced = false;
   String sourceUrl =
       'https://szentjozsefhackathon.github.io/sematizmus/data.json';
   late Database db;
@@ -159,12 +160,14 @@ class _LoadPriestsState extends State<LoadPriests> {
       sourceUrl = url;
     });
   }
+
   int order(Map<String, dynamic> priest) {
     if (priest['seminarist'] ?? false) return 0;
     if (priest['deacon'] ?? false) return 1;
     if (priest['bishop'] ?? false) return 3;
     return 2;
-  } 
+  }
+
   bool isLoading = false;
   void load() async {
     print('Loading priests');
@@ -228,6 +231,60 @@ class _LoadPriestsState extends State<LoadPriests> {
     });
   }
 
+  List<Widget> advancedSettings(BuildContext context) {
+    return [
+      if (!widget.page) Text('Papok betöltése', style: TextStyle(fontSize: 24)),
+      TextFormField(
+        decoration: InputDecoration(
+          labelText: 'Forrás URL',
+        ),
+        onChanged: setSourceUrl,
+        initialValue: sourceUrl,
+      ),
+      Text('Diakónusok'),
+      Switch(value: deacons, onChanged: setDeacons),
+      Text('Szeminaristák'),
+      Switch(value: seminarians, onChanged: setSeminarians),
+      Text('Véletlenszerű kezdési hely'),
+      Switch(value: randomStart, onChanged: setRandomStart),
+      Text('Véletlenszerű sorrend'),
+      Switch(value: randomOrder, onChanged: setRandomOrder),
+      Text(
+          'Források (amennyiben nincs egy sem kijelölve, a szűrő inaktív, az első kijelöléséhez nyomjon hosszan)'),
+      SelectList(
+          list: widget.sources,
+          initialValue: selectedSources,
+          onSelectionChanged: setSelectedSources),
+      Text(
+          "Figyelem! A betöltés hosszabb időt vehet igénybe. Az alkalmazás magától tovább fog lépni."),
+      ElevatedButton(
+        onPressed: load,
+        child: Text('Betöltés'),
+      )
+    ];
+  }
+
+  List<Widget> simple(BuildContext context) {
+    return [
+      if (!widget.page)
+      Text('Imádkozzunk papjainkért! Ehhez nyújt segítséget az alkalmazás.',
+          textAlign: TextAlign.center),
+      ElevatedButton.icon(
+        onPressed: load,
+        label: Text('Elkezdem!'),
+        icon: Icon(Icons.play_arrow),
+      ),
+      ElevatedButton.icon(
+          label: Text("Beállítások"),
+          icon: Icon(Icons.settings),
+          onPressed: () {
+            setState(() {
+              advanced = true;
+            });
+          })
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final body = SingleChildScrollView(
@@ -243,44 +300,16 @@ class _LoadPriestsState extends State<LoadPriests> {
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!widget.page) Text('Papok betöltése', style: TextStyle(fontSize: 24)),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Forrás URL',
-                    ),
-                    onChanged: setSourceUrl,
-                    initialValue: sourceUrl,
-                  ),
-                  Text('Diakónusok'),
-                  Switch(value: deacons, onChanged: setDeacons),
-                  Text('Szeminaristák'),
-                  Switch(value: seminarians, onChanged: setSeminarians),
-                  Text('Véletlenszerű kezdési hely'),
-                  Switch(value: randomStart, onChanged: setRandomStart),
-                  Text('Véletlenszerű sorrend'),
-                  Switch(value: randomOrder, onChanged: setRandomOrder),
-                  Text(
-                      'Források (amennyiben nincs egy sem kijelölve, a szűrő inaktív, az első kijelöléséhez nyomjon hosszan)'),
-                  SelectList(
-                      list: widget.sources,
-                      initialValue: selectedSources,
-                      onSelectionChanged: setSelectedSources),
-                  Text(
-                      "Figyelem! A betöltés hosszabb időt vehet igénybe. Az alkalmazás magától tovább fog lépni."),
-                  ElevatedButton(
-                    onPressed: load,
-                    child: Text('Betöltés'),
-                  )
-                ],
+                crossAxisAlignment: advanced? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                children:
+                    advanced ? advancedSettings(context) : simple(context),
               ),
             ),
     );
     return widget.page
         ? Scaffold(
             appBar: AppBar(
-              title: Text('Papok betöltése'),
+              title: Text(advanced ? 'Papok betöltése' : ''),
             ),
             body: body,
           )

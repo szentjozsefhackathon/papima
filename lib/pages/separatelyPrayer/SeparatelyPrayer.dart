@@ -267,14 +267,15 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
             child: Text('PapIma'),
           ),
           actions: [
-            ElevatedButton.icon(
-                label: Text(dailyStreak > 0 ? dailyStreak.toString() : ''),
-                icon: Icon(Icons.local_fire_department),
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) => DailyStreakDialog());
-                }),
+            if (priests.isNotEmpty)
+              ElevatedButton.icon(
+                  label: Text(dailyStreak > 0 ? dailyStreak.toString() : ''),
+                  icon: Icon(Icons.local_fire_department),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) => DailyStreakDialog());
+                  }),
             if (autoProvider.enabled)
               IconButton(
                 icon: Icon(auto ? Icons.stop : Icons.directions_car),

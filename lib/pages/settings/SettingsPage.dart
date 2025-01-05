@@ -145,6 +145,11 @@ class _SettinsPageState extends State<SettingsPage> {
                     value: settingsProvider.prayer['enabled'],
                     onChanged: (bool value) {
                       var _prayer = settingsProvider.prayer;
+                      for (var order in orders) {
+                        if (_prayer[order['name']] == null && prayers.isNotEmpty) {
+                          _prayer[order['name']] = prayers[0]['id'];
+                        }
+                      }
                       _prayer['enabled'] = value;
                       settingsProvider.setPrayer(_prayer);
                     },
