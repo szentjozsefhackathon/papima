@@ -13,7 +13,7 @@
     },
     {
         "name": "Mária, az Egyház Anyja...",
-        "text": "Mária, az Egyház Anyja, könyörögj N.-ért, és vedd oltalmad alá, hogy teljesen Istennek szentelt élete bőséges gyümölcsöket teremjen az Ő dicsőségére. Ámen."
+        "text": "Mária, az Egyház Anyja, könyörögj N.-ért, és vedd oltalmad alá, hogy teljesen Istennek szentelt élete bőséges gyümölcsöket teremjen. Ámen."
     },
     {
         "name": "Mennyei Atyánk, ...",
@@ -29,6 +29,11 @@
     },
     {
         "name": "Áldozópapért 1",
-        "text": "Jézus Krisztus, áldozópapjaink igaz barátja,\nküldd el a Szentlélek hétszeres ajándékát naponta, N. áldozópapodra,\nhogy ő mindenkinek mindene legyen.\nAdj szívébe türelmet a kicsinyekkel,\negyüttérzést a betegekkel,\nalázatosságot a szegényekkel\nés erős lelket országod ellenségeivel szemben.\nAdd, hogy a tanításban fáradhatatlan legyen,\na bűnök megbocsátásában csüggedést nem ismerő,\na szentáldozás kiosztásában bőkezű.\nÁldásod kísérje őt, amerre jár,\nbékédet vigye be, ahová betér,\nés akit megáld, Urunk és Istenünk, áldd meg te is azokat.\nTedd őt igazi apostolaiddá, tedd szentté. Ámen."
+        "text": "Jézus Krisztus, áldozópapjaink igaz barátja,\nküldd el a Szentlélek hétszeres ajándékát naponta, N. áldozópapodra,\nhogy ő mindenkinek mindene legyen.\nAdj szívébe türelmet a kicsinyekkel,\negyüttérzést a betegekkel,\nalázatosságot a szegényekkel\nés erős lelket országod ellenségeivel szemben.\nAdd, hogy a tanításban fáradhatatlan legyen.\nÁldásod kísérje őt, amerre jár,\nbékédet vigye be, ahová betér,\nés akit megáld, Urunk és Istenünk, áldd meg te is azokat.\nTedd őt igazi apostoloddá, tedd szentté. Ámen."
+    },
+    {
+        "name": "Kis Szent Teréz imája áldozópapért",
+        "text": "Jézus, Örök Főpap!\nTartsd meg N. áldozópapodat legszentebb Szíved oltalmában, ahol senki sem árthat neki.\nŐrizd meg kezét és ajkát, melyekkel naponta érinti Szent Testedet és Véredet.\nŐrizd meg tisztán és minden földi érdektől mentesen szívét, melyeket dicsőséges papságod magasztos pecsétje ékesít.\nNöveld benne az irántad való szeretetet és hűséget, mentsd meg a világ gonosz hatásaitól.\nA kenyér és bor átváltoztatásának hatalmával együtt add neki a lelkeket átváltoztató erőt is.\nÁldd meg munkáját bő terméssel, és ajándékozd neki egykor az örök élet koronáját. Ámen."
     }
 ]
+
