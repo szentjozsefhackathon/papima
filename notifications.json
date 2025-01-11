@@ -4,5 +4,12 @@
         "text": "Ez egy próba értesítés, amit a papima-web/notifications.json-ból olvas be a program.",
         "startDate": "2025-01-01",
         "endDate": "2025-12-31"
+    },
+    {
+        "title": "Mindig megjelenő értesítés",
+        "text": "Ez egy próba értesítés, amit a papima-web/notifications.json-ból olvas be a program.",
+        "startDate": "2025-01-01",
+        "endDate": "2025-12-31",
+        "showEveryStart": true
     }
 ]
