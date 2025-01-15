@@ -1,6 +1,7 @@
 import 'package:PapIma/database/DatabaseHelper.dart';
 import 'package:PapIma/models/DailyGoalProvider.dart';
 import 'package:PapIma/pages/separatelyPrayer/DailyStreakDialog.dart';
+import 'package:PapIma/widgets/notification/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import '../../common/launch_url.dart';
 import '../settings/SettingsPage.dart';
 import '../loadPriests/LoadPriests.dart';
 import '../../common/first_where_or_first.dart';
+//import '../../widgets/mobileapp/mobileapp.dart';
 
 import '../../common/tts.dart';
 
@@ -426,6 +428,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                             ],
                           ),
                         ),
+                        //MobileApp(),
+                        NotificationDialog()
                     ],
                   ),
           ),

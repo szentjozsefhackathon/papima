@@ -36,9 +36,7 @@ class _HistoryState extends State<History> {
         title: Text('Előzmények'),
       ),
       body: ListView.builder(
-        shrinkWrap: true, // Allows the ListView to adapt to its contents
-        physics:
-            NeverScrollableScrollPhysics(), // Disables scrolling to prevent conflicts
+        shrinkWrap: false, 
         itemBuilder: (builder, index) {
           Map data = history[index];
           return ListTile(

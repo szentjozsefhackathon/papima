@@ -49,6 +49,7 @@ class DatabaseHelper {
     await _db.execute(
         'CREATE TABLE IF NOT EXISTS dailyStreak (date TEXT PRIMARY KEY, count INTEGER)');
     await _db.execute('CREATE TABLE IF NOT EXISTS prayers (id INTEGER PRIMARY KEY, name TEXT, text TEXT, isdefault INTEGER)');
+    await _db.execute('CREATE TABLE IF NOT EXISTS notifications (title TEXT, text TEXT, startDate TEXT, endDate TEXT, showEveryStart INTEGER, isShowed INTEGER)');
     await addColumnIfNotExists(database: _db, tableName: "priests", columnName: "order", columnType: ColumnType.integer, defaultValue: null, isNullable: true);
     //todo: remove hardcode
     var result = await _db.query('prayers', where: 'isdefault = ?', whereArgs: [1]);
