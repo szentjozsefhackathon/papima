@@ -37,14 +37,14 @@ class _DynamicImageState extends State<DynamicImage> {
         base64Decode(widget.src.split(',').last.trim()),
         width: widget.maxWidth,
         height: widget.maxHeight,
-        fit: BoxFit.scaleDown,
+        fit: BoxFit.contain,
       );
     } else {
       // Ha a képforrás URL
       _imageElement = Image.network(widget.src,
         width: widget.maxWidth,
         height: widget.maxHeight,
-        fit: BoxFit.scaleDown);
+        fit: BoxFit.contain);
     }
   }
 

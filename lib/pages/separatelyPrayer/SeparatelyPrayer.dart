@@ -361,7 +361,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                         SizedBox(height: 8),
                         Text(currentPriest['diocese']
                             .toString()
-                            .replaceAll("Rendtarománya", "Rendtartománya")),
+                            .replaceAll("Rendtarománya", "Rendtartománya"), textAlign: TextAlign.center),
                         if (currentPriest['order'] != null) ...[
                           SizedBox(height: 8),
                           Text(order(currentPriest['order'])),

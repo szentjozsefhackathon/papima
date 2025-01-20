@@ -41,7 +41,7 @@ class _DynamicImageState extends State<DynamicImage> {
     // HTML ImageElement inicializálása
     _imageElement = web.HTMLImageElement()
       ..src = widget.src // Beállítjuk a képforrást
-      ..style.objectFit = 'scale-down'
+      ..style.objectFit = 'contain'
       ..style.maxWidth = '${widget.maxWidth}px' // Maximális szélesség stílus
       ..style.maxHeight = '${widget.maxHeight}px'; // Maximális magasság stílus
   }
