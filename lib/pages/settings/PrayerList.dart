@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../database/DatabaseHelper.dart';
@@ -8,7 +7,7 @@ class PrayerListPage extends StatefulWidget {
   @override
   _PrayerListPageState createState() => _PrayerListPageState();
 
-  Function? onChange;
+  final Function? onChange;
 
   PrayerListPage({super.key, this.onChange});
 }

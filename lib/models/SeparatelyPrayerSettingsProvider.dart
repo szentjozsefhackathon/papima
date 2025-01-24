@@ -32,7 +32,7 @@ class SeparatelyPrayerSettingsProvider extends ChangeNotifier {
 
   void setPrayer(Map<String, dynamic> prayer) async {
     List<String> orders = ['priest', 'seminarist', 'deacon', 'bishop'];
-    if (!prayer.containsKey('enabled') || prayer.length != orders.length + 1 || !orders.every((element) => prayer.containsKey(element) && (prayer[element] == null || prayer[element] is int))) {
+    if (!prayer.containsKey('enabled') || prayer.length != orders.length + 1 || !orders.every((element) => prayer.containsKey(element) && (prayer[element] == null || int.tryParse(prayer[element])!=null))) {
       throw Exception('Invalid prayer object');
     }
 
