@@ -11,6 +11,7 @@ import '../../models/SystemBarProvider.dart';
 import '../../models/ThemeProvider.dart';
 import '../../models/SeparatelyPrayerSettingsProvider.dart';
 import '../../common/first_where_or_first.dart';
+import 'package:color_scheme_display/color_scheme_display.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -47,7 +48,14 @@ class _SettinsPageState extends State<SettingsPage> {
     ];
     return Scaffold(
         appBar: AppBar(
-          title: Text('Beállítások'),
+          title: GestureDetector(
+            
+            onDoubleTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ColorSchemeDisplay()),
+            ),
+            child: Text('Beállítások'),
+          )
         ),
         body: SingleChildScrollView(
           child: Padding(
