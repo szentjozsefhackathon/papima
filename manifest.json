@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#hexcode",
-    "theme_color": "#hexcode",
+    "theme_color": "#ff2962ff",
     "description": "Ima papjainkért",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
