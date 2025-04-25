@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 class LoadPriests extends StatefulWidget {
   final List<Map> sources = [
+    {"text": "Bíborosi Kar"},
     {"text": "Esztergom-Budapesti főegyházmegye"},
     {"text": "Győri egyházmegye"},
     {"text": "Székesfehérvári egyházmegye"},
@@ -169,6 +170,7 @@ class _LoadPriestsState extends State<LoadPriests> {
   }
 
   bool isLoading = false;
+
   void load() async {
     print('Loading priests');
     if (isLoading) return;
@@ -267,8 +269,18 @@ class _LoadPriestsState extends State<LoadPriests> {
   List<Widget> simple(BuildContext context) {
     return [
       if (!widget.page)
-      Text('Imádkozzunk papjainkért! Ehhez nyújt segítséget az alkalmazás.',
-          textAlign: TextAlign.center),
+        Text('Imádkozzunk papjainkért! Ehhez nyújt segítséget az alkalmazás.',
+            textAlign: TextAlign.center),
+      ElevatedButton.icon(
+          onPressed: () {
+            selectedSources = [{"text": "Bíborosi Kar"}];
+            load();
+          },
+          label: Text("Ima a bíborosokért"),
+          icon: Icon(Icons.church),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+          )),
       ElevatedButton.icon(
         onPressed: load,
         label: Text('Elkezdem!'),
@@ -300,7 +312,9 @@ class _LoadPriestsState extends State<LoadPriests> {
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: advanced? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                crossAxisAlignment: advanced
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.center,
                 children:
                     advanced ? advancedSettings(context) : simple(context),
               ),
