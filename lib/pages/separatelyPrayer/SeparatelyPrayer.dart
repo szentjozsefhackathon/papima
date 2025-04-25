@@ -17,7 +17,8 @@ import '../settings/SettingsPage.dart';
 import '../loadPriests/LoadPriests.dart';
 import '../../common/first_where_or_first.dart';
 //import '../../widgets/mobileapp/mobileapp.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../common/tts.dart';
 
 class SeparatelyPrayer extends StatefulWidget {
@@ -34,6 +35,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
 
   late Database db;
   bool showAdvanced = false;
+  bool cardinalsInList = false;
   bool checked = false;
   bool auto = false;
   List<Map> prayers = [];
@@ -54,12 +56,20 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
       });
     });
   }
-
+  bool checkCardinalsInList(p) {
+    for (var priest in p) {
+      if (priest['diocese'] == "Bíborosi Kar") {
+        return true;
+      }
+    }
+    return false;
+  }
   Future<void> _loadPriestsFromDatabase() async {
     final result = await db.query('priests');
     if (result.isNotEmpty) {
       setState(() {
         priests = result;
+        cardinalsInList = checkCardinalsInList(priests);
         currentIndex = 0;
       });
     }
@@ -326,6 +336,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                         .savePriests(value)
                                         .then((v) {
                                       priests = value;
+                                      cardinalsInList =
+                                          checkCardinalsInList(priests);
                                       _updateIndex("1");
                                     });
                                   });
@@ -359,9 +371,11 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                           ),
                         ),
                         SizedBox(height: 8),
-                        Text(currentPriest['diocese']
-                            .toString()
-                            .replaceAll("Rendtarománya", "Rendtartománya"), textAlign: TextAlign.center),
+                        Text(
+                            currentPriest['diocese']
+                                .toString()
+                                .replaceAll("Rendtarománya", "Rendtartománya"),
+                            textAlign: TextAlign.center),
                         if (currentPriest['order'] != null) ...[
                           SizedBox(height: 8),
                           Text(order(currentPriest['order'])),
@@ -369,7 +383,9 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                       ],
                       SizedBox(height: 16),
                       if (settingsProvider.prayer['enabled'] &&
-                          settingsProvider.prayer[orderName(currentPriest?['order'])] != null)
+                          settingsProvider
+                                  .prayer[orderName(currentPriest?['order'])] !=
+                              null)
                         SizedBox(
                             width: 300 +
                                 settingsProvider.prayer['id']
@@ -381,7 +397,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                         prayers,
                                         (element) =>
                                             element['id'].toString() ==
-                                            settingsProvider.prayer[orderName(currentPriest?['order'])]
+                                            settingsProvider.prayer[orderName(
+                                                    currentPriest?['order'])]
                                                 .toString())?['text'] ??
                                     "",
                                 textAlign: TextAlign.justify)),
@@ -402,6 +419,54 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                       if (backButtonProvider.backButton)
                         ElevatedButton(
                             onPressed: _previousPriest, child: Text('Előző')),
+                      if (!cardinalsInList)
+                        ElevatedButton.icon(
+                            onPressed: () {
+                              String sourceUrl =
+                                  'https://szentjozsefhackathon.github.io/sematizmus/data.json';
+                              http.get(Uri.parse(sourceUrl)).then((response) {
+                                if (response.statusCode == 200) {
+                                  final data =
+                                      jsonDecode(response.body) as List;
+                                  var cardinals = data
+                                      .where(
+                                          (e) => e['diocese'] == "Bíborosi Kar")
+                                      .map((e) => {
+                                            'name': e['name'],
+                                            'img': e['img'],
+                                            'src': e['src'],
+                                            'diocese': e['diocese'],
+                                            'order': 2,
+                                          })
+                                      .toList();
+
+                                  cardinals.sort((a, b) => a['name']
+                                      .toString()
+                                      .compareTo(b['name'].toString()));
+                                  setState(() {
+                                    List<Map<String, dynamic>> _priests = [];
+                                    for (var i = 0; i <= currentIndex; i++) {
+                                      _priests.add(priests[i]);
+                                    }
+                                    _priests.addAll(cardinals);
+                                    for (var i = currentIndex + 1;
+                                        i < priests.length;
+                                        i++) {
+                                      _priests.add(priests[i]);
+                                    }
+                                    priests = _priests;
+                                    cardinalsInList = true;
+                                    DatabaseHelper().savePriests(priests);
+                                  });
+                                }
+                              });
+                            },
+                            label: Text("Ima a bíborosokért"),
+                            icon: Icon(Icons.church),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            )),
+
                       if (showAdvanced)
                         Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -428,8 +493,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                             ],
                           ),
                         ),
-                        //MobileApp(),
-                        NotificationDialog()
+                      //MobileApp(),
+                      NotificationDialog()
                     ],
                   ),
           ),
