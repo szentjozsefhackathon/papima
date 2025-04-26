@@ -12,5 +12,19 @@
         "orderAbbreviation": "",
         "doctor": false,
         "seminarist": null
+    },
+    {
+        "name": "Cardinal Exemplaris",
+        "diocese": "B\u00edborosi Kar",
+        "birth": "1900-01-01",
+        "img": "//upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vetements_cardinal_Gamarelli.jpg/250px-Vetements_cardinal_Gamarelli.jpg",
+        "src": "https://hu.wikipedia.org/wiki/A_harmadik_%C3%A9vezred_b%C3%ADborosainak_list%C3%A1ja",
+        "ordination": null,
+        "retired": null,
+        "bishop": null,
+        "deacon": null,
+        "orderAbbreviation": null,
+        "doctor": null,
+        "seminarist": false
     }
 ]
