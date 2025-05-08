@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 
 class LoadPriests extends StatefulWidget {
   final List<Map> sources = [
-    {"text": "Bíborosi Kar"},
+    // {"text": "Bíborosi Kar"},
     {"text": "Esztergom-Budapesti főegyházmegye"},
     {"text": "Győri egyházmegye"},
     {"text": "Székesfehérvári egyházmegye"},
@@ -271,7 +271,7 @@ class _LoadPriestsState extends State<LoadPriests> {
       if (!widget.page)
         Text('Imádkozzunk papjainkért! Ehhez nyújt segítséget az alkalmazás.',
             textAlign: TextAlign.center),
-      ElevatedButton.icon(
+      /* ElevatedButton.icon(
           onPressed: () {
             selectedSources = [{"text": "Bíborosi Kar"}];
             load();
@@ -280,7 +280,7 @@ class _LoadPriestsState extends State<LoadPriests> {
           icon: Icon(Icons.church),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
-          )),
+          )), */
       ElevatedButton.icon(
         onPressed: load,
         label: Text('Elkezdem!'),

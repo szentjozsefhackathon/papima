@@ -35,7 +35,6 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
 
   late Database db;
   bool showAdvanced = false;
-  bool cardinalsInList = false;
   bool checked = false;
   bool auto = false;
   List<Map> prayers = [];
@@ -44,7 +43,28 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
     super.initState();
     DatabaseHelper().database.then((database) {
       db = database;
-      _loadPriestsFromDatabase();
+      _loadPriestsFromDatabase().then((_) {
+        _loadIndexFromDatabase().then((_) {
+            if(checkCardinalsInList(priests)) {
+              List<Map<String, dynamic>> newPriests = [];
+              int decrease = 0;
+              for (var i = 0; i < priests.length; i++) {
+                if (priests[i]['diocese'] == "Bíborosi Kar" && i <= currentIndex) {
+                  decrease++;
+                } else {
+                  newPriests.add(priests[i]);
+                }
+              }
+              setState(() {
+                priests = newPriests;
+                currentIndex = currentIndex - decrease;
+              });
+
+              DatabaseHelper().savePriests(newPriests);
+              DatabaseHelper().saveSetting("index", currentIndex.toString());
+            }
+        });
+      });
       _loadIndexFromDatabase();
       _getDailyCounter().then((value) => setState(() => dailyCounter = value));
       _getDailyStreak().then((value) => setState(() => dailyStreak = value));
@@ -69,7 +89,6 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
     if (result.isNotEmpty) {
       setState(() {
         priests = result;
-        cardinalsInList = checkCardinalsInList(priests);
         currentIndex = 0;
       });
     }
@@ -336,8 +355,8 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                                         .savePriests(value)
                                         .then((v) {
                                       priests = value;
-                                      cardinalsInList =
-                                          checkCardinalsInList(priests);
+                                      /* cardinalsInList =
+                                          checkCardinalsInList(priests); */ 
                                       _updateIndex("1");
                                     });
                                   });
@@ -419,7 +438,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                       if (backButtonProvider.backButton)
                         ElevatedButton(
                             onPressed: _previousPriest, child: Text('Előző')),
-                      if (!cardinalsInList)
+                      /* if (!cardinalsInList)
                         ElevatedButton.icon(
                             onPressed: () {
                               String sourceUrl =
@@ -465,7 +484,7 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
                             icon: Icon(Icons.church),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
-                            )),
+                            )),*/
 
                       if (showAdvanced)
                         Padding(
