@@ -49,8 +49,10 @@ class _SeparatelyPrayerState extends State<SeparatelyPrayer> {
               List<Map<String, dynamic>> newPriests = [];
               int decrease = 0;
               for (var i = 0; i < priests.length; i++) {
-                if (priests[i]['diocese'] == "Bíborosi Kar" && i <= currentIndex) {
-                  decrease++;
+                if (priests[i]['diocese'] == "Bíborosi Kar") {
+                  if (i < currentIndex) {
+                    decrease++;
+                  }
                 } else {
                   newPriests.add(priests[i]);
                 }

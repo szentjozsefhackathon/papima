@@ -95,6 +95,7 @@ class _LoadPriestsState extends State<LoadPriests> {
     if (_si.isEmpty) return _selectedSources;
     var si = jsonDecode(_si.first['value'].toString()) as List;
     for (int i = 0; i < si.length; i++) {
+      if (si[i] == 'Bíborosi Kar') continue;
       _selectedSources.add({"text": si[i]});
     }
     return _selectedSources;
